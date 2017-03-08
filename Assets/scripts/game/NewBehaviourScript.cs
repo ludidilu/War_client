@@ -28,27 +28,22 @@ public class NewBehaviourScript : MonoBehaviour {
 
 	void Awake(){
 
-		ConfigDictionary.Instance.LoadLocalConfig (Application.streamingAssetsPath + "/local.xml");
-
-		GameConfig.Instance.LoadLocalConfig (ConfigDictionary.Instance.configPath);
-
-		StaticData.path = ConfigDictionary.Instance.tablePath;
-
-		StaticData.Dispose ();
-
-		StaticData.Load<UnitSDS> ("unit");
+		Connection.Instance.Init (ConfigDictionary.Instance.ip, ConfigDictionary.Instance.port, GetBytes, ConfigDictionary.Instance.uid);
 
 		battle = new Battle ();
 
-		RVO.Rect mapBound = new RVO.Rect (GameConfig.Instance.mapX, GameConfig.Instance.mapY, GameConfig.Instance.mapWidth, GameConfig.Instance.mapHeight);
-
-		battle.Init (GameConfig.Instance.timeStep, mapBound, GameConfig.Instance.maxRadius, GameConfig.Instance.mapBoundFix, getUnitSDS);
+		battle.Init (GameConfig.Instance, getUnitSDS);
 
 		SuperRaycast.SetIsOpen (true, "1");
 
 		SuperRaycast.SetCamera (battleCamera);
 
 		SuperFunction.Instance.AddEventListener (quad, SuperRaycast.GetMouseButton, Hit);
+	}
+
+	private void GetBytes(byte[] _bytes){
+
+
 	}
 
 	private void Hit(int _index,object[] _datas){
@@ -100,9 +95,12 @@ public class NewBehaviourScript : MonoBehaviour {
 			battle.Spawn ();
 		}
 
-		battle.Update ();
-
 		Refresh ();
+	}
+
+	void FixedUpdate(){
+
+		battle.Update ();
 	}
 
 	private void Refresh(){

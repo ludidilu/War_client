@@ -19,4 +19,7 @@ public class ConfigDictionary : Config {
 
 	public string tablePath;
 	public string configPath;
+	public int uid;
+	public string ip;
+	public int port;
 }
