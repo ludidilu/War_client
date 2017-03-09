@@ -21,10 +21,7 @@ public class NewBehaviourScript : MonoBehaviour {
 
 	private Dictionary<int, GameObject> goDic = new Dictionary<int, GameObject>();
 
-	private IUnitSDS getUnitSDS(int _id){
 
-		return StaticData.GetData<UnitSDS>(_id);
-	}
 
 	void Awake(){
 
@@ -32,30 +29,18 @@ public class NewBehaviourScript : MonoBehaviour {
 
 		battle = new Battle ();
 
-		battle.Init (GameConfig.Instance, getUnitSDS);
+		battle.ClientStart (Connection.Instance.Send, Refresh);
 
 		SuperRaycast.SetIsOpen (true, "1");
 
 		SuperRaycast.SetCamera (battleCamera);
 
-		SuperFunction.Instance.AddEventListener (quad, SuperRaycast.GetMouseButton, Hit);
+		battle.ClientRequestRefresh ();
 	}
 
 	private void GetBytes(byte[] _bytes){
 
-
-	}
-
-	private void Hit(int _index,object[] _datas){
-
-		RaycastHit hit = (RaycastHit)_datas [0];
-
-		Dictionary<int,Unit>.ValueCollection.Enumerator enumerator = battle.unitDic.Values.GetEnumerator ();
-
-		while (enumerator.MoveNext ()) {
-
-			enumerator.Current.SetTargetPos (new RVO.Vector2 (hit.point.x, hit.point.z));
-		}
+		battle.ClientGetBytes (_bytes);
 	}
 
 	// Use this for initialization
@@ -68,34 +53,17 @@ public class NewBehaviourScript : MonoBehaviour {
 	
 		if (Input.GetKeyUp (KeyCode.A)) {
 
-			if (UnityEngine.Random.value < 0.5f) {
-
-				battle.AddUnitToPool (true, 1);
-
-			} else {
-
-				battle.AddUnitToPool (true, 2);
-			}
+			battle.ClientSendCommand (true, 1);
 		}
 
 		if (Input.GetKeyUp (KeyCode.B)) {
 
-			if (UnityEngine.Random.value < 0.5f) {
-
-				battle.AddUnitToPool (false, 1);
-
-			} else {
-
-				battle.AddUnitToPool (false, 2);
-			}
+			battle.ClientSendCommand (false, 1);
 		}
 
 		if (Input.GetKeyUp (KeyCode.C)) {
 
-			battle.Spawn ();
 		}
-
-		Refresh ();
 	}
 
 	void FixedUpdate(){

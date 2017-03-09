@@ -4,9 +4,21 @@ using UnityEngine.SceneManagement;
 
 public class Entrance : MonoBehaviour {
 
+	private IUnitSDS getUnitSDS(int _id){
+
+		return StaticData.GetData<UnitSDS>(_id);
+	}
+
+	private static void WriteLog(string _str)
+	{
+		SuperDebug.Log(_str);
+	}
+
 	// Use this for initialization
 	void Awake () {
 	
+		Log.Init (WriteLog);
+
 		ConfigDictionary.Instance.LoadLocalConfig (Application.streamingAssetsPath + "/local.xml");
 
 		GameConfig.Instance.LoadLocalConfig (ConfigDictionary.Instance.configPath);
@@ -17,11 +29,11 @@ public class Entrance : MonoBehaviour {
 		
 		StaticData.Load<UnitSDS> ("unit");
 
+		Battle.Init (GameConfig.Instance, getUnitSDS);
+
 		Time.fixedDeltaTime = (float)GameConfig.Instance.timeStep;
 
 		SceneManager.LoadScene ("battle");
-
-		Connection.Instance.Init (ConfigDictionary.Instance.ip, ConfigDictionary.Instance.port, GetBytes, ConfigDictionary.Instance.uid);
 	}
 
 	private void GetBytes(byte[] _bytes){

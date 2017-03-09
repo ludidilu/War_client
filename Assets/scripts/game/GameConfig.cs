@@ -23,6 +23,8 @@
 	public double maxRadius;
 	public double mapBoundFix;
 	public int moveTimes;
+	public int commandDelay;
+	public int spawnStep;
 
 	public double GetTimeStep()
 	{
@@ -62,5 +64,15 @@
 	public int GetMoveTimes()
 	{
 		return moveTimes;
+	}
+
+	public int GetCommandDelay()
+	{
+		return commandDelay;
+	}
+
+	public int GetSpawnStep()
+	{
+		return spawnStep;
 	}
 }
