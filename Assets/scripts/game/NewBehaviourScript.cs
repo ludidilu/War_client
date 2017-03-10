@@ -21,7 +21,7 @@ public class NewBehaviourScript : MonoBehaviour {
 
 	private Dictionary<int, GameObject> goDic = new Dictionary<int, GameObject>();
 
-
+	private LinkedList<int> goList = new LinkedList<int>();
 
 	void Awake(){
 
@@ -51,18 +51,29 @@ public class NewBehaviourScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
-		if (Input.GetKeyUp (KeyCode.A)) {
+		if (Input.GetKeyUp (KeyCode.Alpha1)) {
 
 			battle.ClientSendCommand (true, 1);
 		}
 
-		if (Input.GetKeyUp (KeyCode.B)) {
+		if (Input.GetKeyUp (KeyCode.Alpha2)) {
+
+			battle.ClientSendCommand (true, 2);
+		}
+
+		if (Input.GetKeyUp (KeyCode.Alpha3)) {
 
 			battle.ClientSendCommand (false, 1);
 		}
 
-		if (Input.GetKeyUp (KeyCode.C)) {
+		if (Input.GetKeyUp (KeyCode.Alpha4)) {
 
+			battle.ClientSendCommand (false, 2);
+		}
+
+		if (Input.GetKeyUp (KeyCode.F5)) {
+
+			battle.ClientRequestRefresh ();
 		}
 	}
 
@@ -92,6 +103,28 @@ public class NewBehaviourScript : MonoBehaviour {
 				CreateGo (unit);
 			}
 		}
+
+		LinkedListNode<int> node = goList.First;
+
+		while (node != null) {
+
+			LinkedListNode<int> nextNode = node.Next;
+
+			int uid = node.Value;
+
+			if (!battle.unitDic.ContainsKey (uid)) {
+
+				GameObject go = goDic [uid];
+
+				GameObject.Destroy (go);
+
+				goDic.Remove (uid);
+
+				goList.Remove (node);
+			}
+
+			node = nextNode;
+		}
 	}
 
 	private void CreateGo(Unit _unit){
@@ -115,32 +148,11 @@ public class NewBehaviourScript : MonoBehaviour {
 
 			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x, 0f, (float)_unit.pos.y);
 
-			goDic [_unit.uid] = _go;
+			goDic.Add(_unit.uid, _go);
+
+			goList.AddLast(_unit.uid);
 		};
 
 		GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", cb);
 	}
-
-	private void GetGo(GameObject _go,string _str){
-
-//		_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
-//
-//		RVO.Vector2 pos = new RVO.Vector2 (Random.value * GameConfig.Instance.mapWidth + GameConfig.Instance.mapX, Random.value * GameConfig.Instance.mapHeight + GameConfig.Instance.mapY);
-//
-//		Unit unit = battle.AddUnit (1, true, 1, pos);
-//
-//		unitDic [unit.uid] = unit;
-//
-//		float scale = (float)unit.sds.GetRadius () * 2;
-//
-//		_go.transform.SetParent (unitContainer, false);
-//
-//		_go.transform.localScale = new Vector3 (scale, scale, scale);
-//
-//		_go.transform.localPosition = new Vector3 ((float)pos.x, 0f, (float)pos.y);
-//
-//		goDic [unit.uid] = _go;
-	}
-
-
 }
