@@ -74,23 +74,23 @@ public class BattleManager : MonoBehaviour {
 
 		if (Input.GetKeyUp (KeyCode.Alpha1)) {
 
-			battle.ClientSendCommand (true, 1);
+			battle.ClientSendCommand (1);
 		}
 
 		if (Input.GetKeyUp (KeyCode.Alpha2)) {
 
-			battle.ClientSendCommand (true, 2);
+			battle.ClientSendCommand (2);
 		}
-
-		if (Input.GetKeyUp (KeyCode.Alpha3)) {
-
-			battle.ClientSendCommand (false, 1);
-		}
-
-		if (Input.GetKeyUp (KeyCode.Alpha4)) {
-
-			battle.ClientSendCommand (false, 2);
-		}
+//
+//		if (Input.GetKeyUp (KeyCode.Alpha3)) {
+//
+//			battle.ClientSendCommand (false, 1);
+//		}
+//
+//		if (Input.GetKeyUp (KeyCode.Alpha4)) {
+//
+//			battle.ClientSendCommand (false, 2);
+//		}
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
