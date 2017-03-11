@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using superRaycast;
 using superFunction;
 using System;
+using System.IO;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class BattleManager : MonoBehaviour {
 
 	[SerializeField]
 	private Transform unitContainer;
@@ -23,34 +24,54 @@ public class NewBehaviourScript : MonoBehaviour {
 
 	private LinkedList<int> goList = new LinkedList<int>();
 
-	void Awake(){
+	private Action battleOverCallBack;
 
-		Connection.Instance.Init (ConfigDictionary.Instance.ip, ConfigDictionary.Instance.port, GetBytes, ConfigDictionary.Instance.uid);
+	public void Init(Action<MemoryStream> _sendDataCallBack, Action _battleOverCallBack){
 
 		battle = new Battle ();
 
-		battle.ClientStart (Connection.Instance.Send, Refresh);
+		battle.ClientInit (_sendDataCallBack, Refresh, BattleOver);
 
 		SuperRaycast.SetIsOpen (true, "1");
 
 		SuperRaycast.SetCamera (battleCamera);
 
-		battle.ClientRequestRefresh ();
+		battleOverCallBack = _battleOverCallBack;
 	}
 
-	private void GetBytes(byte[] _bytes){
+	public void BattleStart(){
+
+		battle.ClientRequestRefresh ();
+
+		gameObject.SetActive (true);
+	}
+
+	private void BattleOver(){
+
+		Dictionary<int,GameObject>.ValueCollection.Enumerator enumerator = goDic.Values.GetEnumerator ();
+
+		while (enumerator.MoveNext ()) {
+
+			GameObject.Destroy (enumerator.Current);
+		}
+
+		goList.Clear ();
+
+		goDic.Clear ();
+
+		gameObject.SetActive (false);
+
+		battleOverCallBack ();
+	}
+
+	public void GetBytes(byte[] _bytes){
 
 		battle.ClientGetBytes (_bytes);
-	}
-
-	// Use this for initialization
-	void Start () {
-	
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+
 		if (Input.GetKeyUp (KeyCode.Alpha1)) {
 
 			battle.ClientSendCommand (true, 1);
