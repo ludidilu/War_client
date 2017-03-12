@@ -41,8 +41,6 @@ public class BattleManager : MonoBehaviour {
 
 	public void BattleStart(){
 
-		battle.ClientRequestRefresh ();
-
 		gameObject.SetActive (true);
 	}
 
@@ -74,23 +72,27 @@ public class BattleManager : MonoBehaviour {
 
 		if (Input.GetKeyUp (KeyCode.Alpha1)) {
 
-			battle.ClientSendCommand (1);
+			battle.ClientSendUnitCommand (1);
 		}
 
 		if (Input.GetKeyUp (KeyCode.Alpha2)) {
 
-			battle.ClientSendCommand (2);
+			battle.ClientSendUnitCommand (2);
 		}
-//
-//		if (Input.GetKeyUp (KeyCode.Alpha3)) {
-//
-//			battle.ClientSendCommand (false, 1);
-//		}
-//
-//		if (Input.GetKeyUp (KeyCode.Alpha4)) {
-//
-//			battle.ClientSendCommand (false, 2);
-//		}
+
+		if (Input.GetKeyUp (KeyCode.Alpha3)) {
+
+			Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
+
+			RaycastHit hit;
+
+			bool b = Physics.Raycast (ray, out hit);
+
+			if (b) {
+
+				battle.ClientSendHeroCommand (3, hit.point.x, hit.point.z);
+			}
+		}
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
