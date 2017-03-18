@@ -10,6 +10,11 @@
 	public double attackStep;
 	public int hp;
 	public double visionRange;
+	public bool isAirUnit;
+	public bool canAttackAirUnit;
+	public bool canAttackGroundUnit;
+	public int attackType;
+	public double attackTypeData;
 
 	public double GetMoveSpeed()
 	{
@@ -58,5 +63,30 @@
 	public double GetVisionRange()
 	{
 		return visionRange;
+	}
+
+	public bool GetIsAirUnit()
+	{
+		return isAirUnit;
+	}
+
+	public bool GetCanAttackAirUnit()
+	{
+		return canAttackAirUnit;
+	}
+
+	public bool GetCanAttackGroundUnit()
+	{
+		return canAttackGroundUnit;
+	}
+
+	public UnitAttackType GetAttackType()
+	{
+		return (UnitAttackType)attackType;
+	}
+
+	public double GetAttackTypeData()
+	{
+		return attackTypeData;
 	}
 }
