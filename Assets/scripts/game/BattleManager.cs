@@ -156,6 +156,8 @@ public class BattleManager : MonoBehaviour {
 
 	private void CreateGo(Unit _unit){
 
+		Debug.Log ("battle.clientIsMine:" + battle.clientIsMine);
+
 		int fix = battle.clientIsMine ? 1 : -1;
 
 		Action<GameObject,string> cb = delegate(GameObject _go, string arg2) {
