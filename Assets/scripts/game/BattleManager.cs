@@ -90,7 +90,9 @@ public class BattleManager : MonoBehaviour {
 
 			if (b) {
 
-				battle.ClientSendHeroCommand (3, hit.point.x, hit.point.z);
+				int fix = battle.clientIsMine ? 1 : -1;
+
+				battle.ClientSendHeroCommand (3, hit.point.x * fix, hit.point.z * fix);
 			}
 		}
 
@@ -106,6 +108,8 @@ public class BattleManager : MonoBehaviour {
 	}
 
 	private void Refresh(){
+
+		int fix = battle.clientIsMine ? 1 : -1;
 		
 		Dictionary<int, Unit>.Enumerator enumerator = battle.unitDic.GetEnumerator ();
 
@@ -119,7 +123,7 @@ public class BattleManager : MonoBehaviour {
 
 				GameObject go = goDic [uid];
 
-				go.transform.localPosition = new Vector3 ((float)unit.pos.x, 0f, (float)unit.pos.y);
+				go.transform.localPosition = new Vector3 ((float)unit.pos.x * fix, 0f, (float)unit.pos.y * fix);
 
 			} else {
 
@@ -152,9 +156,11 @@ public class BattleManager : MonoBehaviour {
 
 	private void CreateGo(Unit _unit){
 
+		int fix = battle.clientIsMine ? 1 : -1;
+
 		Action<GameObject,string> cb = delegate(GameObject _go, string arg2) {
 
-			if(_unit.isMine){
+			if(_unit.isMine == battle.clientIsMine){
 
 				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
 
@@ -169,7 +175,7 @@ public class BattleManager : MonoBehaviour {
 
 			_go.transform.localScale = new Vector3 (scale, scale, scale);
 
-			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x, 0f, (float)_unit.pos.y);
+			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x * fix, 0f, (float)_unit.pos.y * fix);
 
 			goDic.Add(_unit.uid, _go);
 
