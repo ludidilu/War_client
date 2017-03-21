@@ -70,7 +70,7 @@ public class HeroCell : SuperListCell {
 
 	public override void SetSelected(bool _value){
 
-		img.color = _value ? Color.red : Color.white;
+		img.color = _value ? Color.green : Color.white;
 
 		base.SetSelected (_value);
 	}

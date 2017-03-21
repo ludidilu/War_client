@@ -108,6 +108,18 @@ public class BattleManager : MonoBehaviour {
 		}
 	}
 
+	private void HeroCellClick(int _id, float _x, float _y){
+
+		int money = battle.clientIsMine ? battle.mMoney : battle.oMoney;
+
+		UnitSDS sds = StaticData.GetData<UnitSDS> (_id);
+
+		if (money >= sds.prize) {
+
+			battle.ClientSendHeroCommand (_id, _x, _y);
+		}
+	}
+
 	public void BattleStart(){
 
 		gameObject.SetActive (true);
@@ -146,17 +158,70 @@ public class BattleManager : MonoBehaviour {
 
 		bool refresh = false;
 
-		Dictionary<int, int> unitPool = battle.clientIsMine ? battle.mUnitPool : battle.oUnitPool;
+		Dictionary<int, int> unitPool;
 
-		Dictionary<int, int>.Enumerator enumerator = unitPool.GetEnumerator ();
+		Dictionary<int, Unit> heroPool;
+
+		Dictionary<int, Dictionary<int, UnitCommandData>> unitCommandPool;
+
+		Dictionary<int, HeroCommandData> heroCommandPool;
+
+		if (battle.clientIsMine) {
+
+			unitPool = battle.mUnitPool;
+
+			heroPool = battle.mHeroPool;
+
+			unitCommandPool = battle.mUnitCommandPool;
+
+			heroCommandPool = battle.mHeroCommandPool;
+
+		} else {
+
+			unitPool = battle.oUnitPool;
+
+			heroPool = battle.oHeroPool;
+
+			unitCommandPool = battle.oUnitCommandPool;
+
+			heroCommandPool = battle.oHeroCommandPool;
+		}
+
+		Dictionary<int, UnitCellData>.ValueCollection.Enumerator enumerator = unitDic.Values.GetEnumerator ();
 
 		while (enumerator.MoveNext ()) {
 
-			UnitCellData cellData = unitDic [enumerator.Current.Key];
+			UnitCellData cellData = enumerator.Current;
 
-			if (cellData.num != enumerator.Current.Value) {
+			int num;
 
-				cellData.num = enumerator.Current.Value;
+			if (unitPool.ContainsKey (cellData.id)) {
+
+				num = unitPool [cellData.id];
+
+			} else {
+
+				num = 0;
+			}
+
+			Dictionary<int, Dictionary<int, UnitCommandData>>.ValueCollection.Enumerator enumerator3 = unitCommandPool.Values.GetEnumerator ();
+
+			while (enumerator3.MoveNext ()) {
+
+				Dictionary<int, UnitCommandData>.ValueCollection.Enumerator enumerator4 = enumerator3.Current.Values.GetEnumerator ();
+
+				while (enumerator4.MoveNext ()) {
+
+					if (enumerator4.Current.id == cellData.id) {
+
+						num++;
+					}
+				}
+			}
+
+			if (cellData.num != num) {
+
+				cellData.num = num;
 
 				refresh = true;
 			}
@@ -169,17 +234,25 @@ public class BattleManager : MonoBehaviour {
 			refresh = false;
 		}
 
-		Dictionary<int, Unit> heroPool = battle.clientIsMine ? battle.mHeroPool : battle.oHeroPool;
-
-		Dictionary<int, HeroCellData>.Enumerator enumerator2 = heroDic.GetEnumerator ();
+		Dictionary<int, HeroCellData>.ValueCollection.Enumerator enumerator2 = heroDic.Values.GetEnumerator ();
 
 		while (enumerator2.MoveNext ()) {
 
-			bool b = heroPool.ContainsKey (enumerator2.Current.Key);
+			HeroCellData cellData = enumerator2.Current;
 
-			if (b != enumerator2.Current.Value.added) {
+			bool b = heroPool.ContainsKey (cellData.id);
 
-				enumerator2.Current.Value.added = b;
+			if (!b) {
+
+				if (heroCommandPool.ContainsKey (cellData.id)) {
+
+					b = true;
+				}
+			}
+
+			if (cellData.added != b) {
+
+				cellData.added = b;
 
 				refresh = true;
 			}
@@ -187,10 +260,39 @@ public class BattleManager : MonoBehaviour {
 
 		if (refresh) {
 
+			int lastIndex = heroSuperList.GetSelectedIndex ();
+
 			heroSuperList.SetDataAndKeepLocation (heroList);
+
+			if (lastIndex != -1) {
+
+				if (heroList [lastIndex].added) {
+
+					heroSuperList.SetSelectedIndex (-1);
+				}
+			}
 		}
 
 		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
+
+		if (heroSuperList.GetSelectedIndex () != -1) {
+
+			if (Input.GetMouseButtonUp(0)) {
+
+				Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
+
+				RaycastHit hit;
+
+				bool b = Physics.Raycast (ray, out hit);
+
+				if (b) {
+
+					int fix = battle.clientIsMine ? 1 : -1;
+
+					HeroCellClick (heroList[heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
+				}
+			}
+		}
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
