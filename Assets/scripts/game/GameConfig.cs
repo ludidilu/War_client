@@ -25,6 +25,8 @@
 	public int moveTimes;
 	public int commandDelay;
 	public int spawnStep;
+	public int defaultMoney;
+	public int moneyPerStep;
 
 	public double GetTimeStep()
 	{
@@ -74,5 +76,15 @@
 	public int GetSpawnStep()
 	{
 		return spawnStep;
+	}
+
+	public int GetDefaultMoney()
+	{
+		return defaultMoney;
+	}
+
+	public int GetMoneyPerStep()
+	{
+		return moneyPerStep;
 	}
 }

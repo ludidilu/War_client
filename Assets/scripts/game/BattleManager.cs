@@ -6,6 +6,7 @@ using superRaycast;
 using superFunction;
 using System;
 using System.IO;
+using superList;
 
 public class BattleManager : MonoBehaviour {
 
@@ -26,17 +27,51 @@ public class BattleManager : MonoBehaviour {
 
 	private Action battleOverCallBack;
 
+	//----ui
+	[SerializeField]
+	private SuperList unitSuperList;
+
+	[SerializeField]
+	private SuperList heroSuperList;
+
+	private List<UnitCellData> unitList = new List<UnitCellData> ();
+
+	private List<HeroCellData> heroList = new List<HeroCellData> ();
+	//----
+
 	public void Init(Action<MemoryStream> _sendDataCallBack, Action _battleOverCallBack){
 
 		battle = new Battle ();
 
-		battle.ClientInit (_sendDataCallBack, Refresh, BattleOver);
+		battle.ClientInit (_sendDataCallBack, Refresh, BattleOver, SendCommandOK);
 
 		SuperRaycast.SetIsOpen (true, "1");
 
 		SuperRaycast.SetCamera (battleCamera);
 
 		battleOverCallBack = _battleOverCallBack;
+
+		Dictionary<int, UnitSDS> tmpDic = StaticData.GetDic<UnitSDS> ();
+
+		Dictionary<int, UnitSDS>.ValueCollection.Enumerator enumerator = tmpDic.Values.GetEnumerator ();
+
+		while (enumerator.MoveNext ()) {
+
+			UnitSDS sds = enumerator.Current;
+
+			if (sds.isHero) {
+
+				heroList.Add (new HeroCellData (sds.ID, false));
+
+			} else {
+
+				unitList.Add (new UnitCellData (sds.ID, 0));
+			}
+		}
+
+		unitSuperList.SetData (unitList);
+
+		heroSuperList.SetData (heroList);
 	}
 
 	public void BattleStart(){
@@ -60,6 +95,11 @@ public class BattleManager : MonoBehaviour {
 		gameObject.SetActive (false);
 
 		battleOverCallBack ();
+	}
+
+	private void SendCommandOK(bool _b){
+
+
 	}
 
 	public void GetBytes(byte[] _bytes){

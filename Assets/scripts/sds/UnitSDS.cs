@@ -15,6 +15,8 @@
 	public bool canAttackGroundUnit;
 	public int attackType;
 	public double attackTypeData;
+	public bool isHero;
+	public int prize;
 
 	public double GetMoveSpeed()
 	{
@@ -88,5 +90,15 @@
 	public double GetAttackTypeData()
 	{
 		return attackTypeData;
+	}
+
+	public bool GetIsHero()
+	{
+		return isHero;
+	}
+
+	public int GetPrize()
+	{
+		return prize;
 	}
 }
