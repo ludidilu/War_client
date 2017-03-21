@@ -7,6 +7,7 @@ using superFunction;
 using System;
 using System.IO;
 using superList;
+using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour {
 
@@ -34,9 +35,16 @@ public class BattleManager : MonoBehaviour {
 	[SerializeField]
 	private SuperList heroSuperList;
 
+	[SerializeField]
+	private Text moneyTf;
+
 	private List<UnitCellData> unitList = new List<UnitCellData> ();
 
+	private Dictionary<int, UnitCellData> unitDic = new Dictionary<int, UnitCellData> ();
+
 	private List<HeroCellData> heroList = new List<HeroCellData> ();
+
+	private Dictionary<int, HeroCellData> heroDic = new Dictionary<int, HeroCellData>();
 	//----
 
 	public void Init(Action<MemoryStream> _sendDataCallBack, Action _battleOverCallBack){
@@ -61,11 +69,19 @@ public class BattleManager : MonoBehaviour {
 
 			if (sds.isHero) {
 
-				heroList.Add (new HeroCellData (sds.ID, false));
+				HeroCellData cellData = new HeroCellData (sds.ID, false);
+
+				heroList.Add (cellData);
+
+				heroDic.Add (sds.ID, cellData);
 
 			} else {
 
-				unitList.Add (new UnitCellData (sds.ID, 0));
+				UnitCellData cellData = new UnitCellData (sds.ID, 0);
+
+				unitList.Add (cellData);
+
+				unitDic.Add (sds.ID, cellData);
 			}
 		}
 
@@ -73,7 +89,23 @@ public class BattleManager : MonoBehaviour {
 
 		heroSuperList.SetData (heroList);
 
+		unitSuperList.CellClickHandle = UnitCellClick;
+
 		gameObject.SetActive (false);
+	}
+
+	private void UnitCellClick(object _data){
+
+		UnitCellData data = _data as UnitCellData;
+
+		int money = battle.clientIsMine ? battle.mMoney : battle.oMoney;
+
+		UnitSDS sds = StaticData.GetData<UnitSDS> (data.id);
+
+		if (money >= sds.prize) {
+
+			battle.ClientSendUnitCommand (data.id);
+		}
 	}
 
 	public void BattleStart(){
@@ -112,31 +144,53 @@ public class BattleManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (Input.GetKeyUp (KeyCode.Alpha1)) {
+		bool refresh = false;
 
-			battle.ClientSendUnitCommand (1);
-		}
+		Dictionary<int, int> unitPool = battle.clientIsMine ? battle.mUnitPool : battle.oUnitPool;
 
-		if (Input.GetKeyUp (KeyCode.Alpha2)) {
+		Dictionary<int, int>.Enumerator enumerator = unitPool.GetEnumerator ();
 
-			battle.ClientSendUnitCommand (2);
-		}
+		while (enumerator.MoveNext ()) {
 
-		if (Input.GetKeyUp (KeyCode.Alpha3)) {
+			UnitCellData cellData = unitDic [enumerator.Current.Key];
 
-			Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
+			if (cellData.num != enumerator.Current.Value) {
 
-			RaycastHit hit;
+				cellData.num = enumerator.Current.Value;
 
-			bool b = Physics.Raycast (ray, out hit);
-
-			if (b) {
-
-				int fix = battle.clientIsMine ? 1 : -1;
-
-				battle.ClientSendHeroCommand (3, hit.point.x * fix, hit.point.z * fix);
+				refresh = true;
 			}
 		}
+
+		if (refresh) {
+
+			unitSuperList.SetDataAndKeepLocation (unitList);
+
+			refresh = false;
+		}
+
+		Dictionary<int, Unit> heroPool = battle.clientIsMine ? battle.mHeroPool : battle.oHeroPool;
+
+		Dictionary<int, HeroCellData>.Enumerator enumerator2 = heroDic.GetEnumerator ();
+
+		while (enumerator2.MoveNext ()) {
+
+			bool b = heroPool.ContainsKey (enumerator2.Current.Key);
+
+			if (b != enumerator2.Current.Value.added) {
+
+				enumerator2.Current.Value.added = b;
+
+				refresh = true;
+			}
+		}
+
+		if (refresh) {
+
+			heroSuperList.SetDataAndKeepLocation (heroList);
+		}
+
+		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
@@ -197,8 +251,6 @@ public class BattleManager : MonoBehaviour {
 	}
 
 	private void CreateGo(Unit _unit){
-
-		Debug.Log ("battle.clientIsMine:" + battle.clientIsMine);
 
 		int fix = battle.clientIsMine ? 1 : -1;
 
