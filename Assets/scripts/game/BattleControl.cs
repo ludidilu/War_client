@@ -21,7 +21,7 @@ public class BattleControl : MonoBehaviour {
 	private BattleManager battleManager;
 
 	// Use this for initialization
-	void Awake () {
+	void Start () {
 	
 		battleManager.Init (SendData, BattleOver);
 

@@ -72,6 +72,8 @@ public class BattleManager : MonoBehaviour {
 		unitSuperList.SetData (unitList);
 
 		heroSuperList.SetData (heroList);
+
+		gameObject.SetActive (false);
 	}
 
 	public void BattleStart(){
