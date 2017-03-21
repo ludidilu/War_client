@@ -55,6 +55,8 @@ public class BattleManager : MonoBehaviour {
 
 		SuperRaycast.SetIsOpen (true, "1");
 
+		SuperRaycast.checkBlockByUi = true;
+
 		SuperRaycast.SetCamera (battleCamera);
 
 		battleOverCallBack = _battleOverCallBack;
@@ -92,6 +94,8 @@ public class BattleManager : MonoBehaviour {
 		unitSuperList.CellClickHandle = UnitCellClick;
 
 		gameObject.SetActive (false);
+
+		SuperFunction.Instance.AddEventListener (quad, SuperRaycast.GetMouseClick, QuadClick);
 	}
 
 	private void UnitCellClick(object _data){
@@ -117,6 +121,18 @@ public class BattleManager : MonoBehaviour {
 		if (money >= sds.prize) {
 
 			battle.ClientSendHeroCommand (_id, _x, _y);
+		}
+	}
+
+	private void QuadClick(int _index, object[] _objs){
+
+		if (heroSuperList.GetSelectedIndex () != -1) {
+
+			RaycastHit hit = (RaycastHit)_objs [0];
+
+			int fix = battle.clientIsMine ? 1 : -1;
+
+			HeroCellClick (heroList [heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
 		}
 	}
 
@@ -275,24 +291,24 @@ public class BattleManager : MonoBehaviour {
 
 		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
 
-		if (heroSuperList.GetSelectedIndex () != -1) {
-
-			if (Input.GetMouseButtonUp(0)) {
-
-				Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
-
-				RaycastHit hit;
-
-				bool b = Physics.Raycast (ray, out hit);
-
-				if (b) {
-
-					int fix = battle.clientIsMine ? 1 : -1;
-
-					HeroCellClick (heroList[heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
-				}
-			}
-		}
+//		if (heroSuperList.GetSelectedIndex () != -1) {
+//
+//			if (Input.GetMouseButtonUp(0)) {
+//
+//				Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
+//
+//				RaycastHit hit;
+//
+//				bool b = Physics.Raycast (ray, out hit);
+//
+//				if (b) {
+//
+//					int fix = battle.clientIsMine ? 1 : -1;
+//
+//					HeroCellClick (heroList[heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
+//				}
+//			}
+//		}
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
