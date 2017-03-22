@@ -11,6 +11,8 @@ using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour {
 
+	private const float AIR_UNIT_Y = 15f;
+
 	[SerializeField]
 	private Transform unitContainer;
 
@@ -337,7 +339,7 @@ public class BattleManager : MonoBehaviour {
 
 				GameObject go = goDic [uid];
 
-				go.transform.localPosition = new Vector3 ((float)unit.pos.x * fix, 0f, (float)unit.pos.y * fix);
+				go.transform.localPosition = new Vector3 ((float)unit.pos.x * fix, go.transform.localPosition.y, (float)unit.pos.y * fix);
 
 			} else {
 
@@ -389,7 +391,9 @@ public class BattleManager : MonoBehaviour {
 
 			_go.transform.localScale = new Vector3 (scale, scale, scale);
 
-			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x * fix, 0f, (float)_unit.pos.y * fix);
+			float y = _unit.sds.GetIsAirUnit() ? AIR_UNIT_Y : 0f;
+
+			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x * fix, y, (float)_unit.pos.y * fix);
 
 			goDic.Add(_unit.uid, _go);
 
