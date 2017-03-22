@@ -58,6 +58,11 @@ namespace textureFactory{
 		}
 		
 		private void GetAsset(T[] _data,string _msg){
+
+			if(_data.Length < 1){
+
+				throw new Exception("Texture load fail! name:" + name);
+			}
 			
 			if(isDispose){
 
@@ -68,7 +73,7 @@ namespace textureFactory{
 
 				return;
 			}
-			
+		
 			data = _data;
 			
 			type = 1;

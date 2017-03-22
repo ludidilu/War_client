@@ -10,79 +10,44 @@ public class CameraControl : MonoBehaviour {
 	private Transform target;
 
 	[SerializeField]
-	private float moveSpeed = 1f;
-
-	[SerializeField]
 	private float rotateSpeed = 2f;
 
 	[SerializeField]
 	private float scrollSpeed = 0.1f;
 
 	[SerializeField]
-	private float maxAngle = 45;
+	private float xAngle = -1;//允许绕x轴转动的角度 小于0代表无限制
 
 	[SerializeField]
-	private float minAngle = 10;
+	private float yAngle = -1;//允许绕y轴转动的角度 小于0代表无限制
 
-	[SerializeField]
-	private float distance = 3;
+	private float distance;
+
+	private float nowXAngle;
+
+	private float xAngleChange;
+
+	private float nowYAngle;
+
+	private float yAngleChange;
 
 	// Use this for initialization
-	void Start () {
+	void OnEnable () {
 	
-		RefreshCameraAngle();
+		target.LookAt(renderCamera,Vector3.up);
 
-		RefreshCameraDistance();
+		nowXAngle = target.localEulerAngles.x;
 
-		RefreshCameraPosition();
+		nowYAngle = target.localEulerAngles.y;
+
+		xAngleChange = yAngleChange = 0;
+
+		distance = Vector3.Distance(target.position,renderCamera.position);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-
-		Vector3 p = Vector3.zero;
-
-		if(Input.GetKey(KeyCode.UpArrow)){
-
-			Vector3 forward = renderCamera.forward;
-			
-			forward.y = 0;
-			
-			p = p + forward.normalized;
-		}
-
-		if(Input.GetKey(KeyCode.DownArrow)){
-
-			Vector3 forward = renderCamera.forward;
-			
-			forward.y = 0;
-			
-			p = p - forward.normalized;
-		}
-
-		if(Input.GetKey(KeyCode.LeftArrow)){
-
-			Vector3 right = renderCamera.right;
-			
-			right.y = 0;
-			
-			p = p - right.normalized;
-		}
-
-		if(Input.GetKey(KeyCode.RightArrow)){
-
-			Vector3 right = renderCamera.right;
-			
-			right.y = 0;
-			
-			p = p + right.normalized;
-		}
-
-		if(p != Vector3.zero){
-
-			transform.position += p.normalized * Time.deltaTime * moveSpeed;
-		}
-
+		
 		bool hasChange = false;
 
 		if(!Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(0)){
@@ -109,18 +74,46 @@ public class CameraControl : MonoBehaviour {
 
 		Vector3 q = target.localEulerAngles;
 
-		q.x += GetInputDeltaX() * rotateSpeed;
-		q.y += GetInputDeltaY() * rotateSpeed;
-		
-		if(q.x > 360 - minAngle){
-			
-			q.x = 360 - minAngle;
-			
-		}else if(q.x < 360 - maxAngle){
-			
-			q.x = 360 - maxAngle;
+		if(xAngle < 0){
+
+			q.x += GetInputDeltaX() * rotateSpeed;
+
+		}else{
+
+			xAngleChange += GetInputDeltaX() * rotateSpeed;
+
+			if(xAngleChange > xAngle){
+
+				xAngleChange = xAngle;
+
+			}else if(xAngleChange < -xAngle){
+
+				xAngleChange = -xAngle;
+			}
+
+			q.x = nowXAngle + xAngleChange;
 		}
-		
+
+		if(yAngle < 0){
+
+			q.y += GetInputDeltaY() * rotateSpeed;
+
+		}else{
+
+			yAngleChange += GetInputDeltaY() * rotateSpeed;
+
+			if(yAngleChange > yAngle){
+
+				yAngleChange = yAngle;
+
+			}else if(yAngleChange < -yAngle){
+
+				yAngleChange = -yAngle;
+			}
+
+			q.y = nowYAngle + yAngleChange;
+		}
+
 		target.localEulerAngles = q;
 	}
 
@@ -138,7 +131,7 @@ public class CameraControl : MonoBehaviour {
 
 	private float GetInputDeltaX(){
 
-		#if PLATFORM_PC
+		#if PLATFORM_PC || UNITY_EDITOR
 		
 		return Input.GetAxis("Mouse Y");
 		
@@ -151,7 +144,7 @@ public class CameraControl : MonoBehaviour {
 
 	private float GetInputDeltaY(){
 		
-		#if PLATFORM_PC
+		#if PLATFORM_PC || UNITY_EDITOR
 		
 		return Input.GetAxis("Mouse X");
 		

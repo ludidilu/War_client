@@ -95,11 +95,18 @@ public class AssetBundleTools{
 
 		DirectoryInfo directoryInfo = new DirectoryInfo(Application.streamingAssetsPath + "/assetbundle");
 
-		FileInfo[] fileInfos = directoryInfo.GetFiles();
+		if(!directoryInfo.Exists){
 
-		foreach(FileInfo fileInfo in fileInfos){
+			directoryInfo.Create();
 
-			fileInfo.Delete();
+		}else{
+
+			FileInfo[] fileInfos = directoryInfo.GetFiles();
+
+			foreach(FileInfo fileInfo in fileInfos){
+
+				fileInfo.Delete();
+			}
 		}
 	}
 

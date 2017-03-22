@@ -56,14 +56,10 @@ public class PrefabCheckTools{
 		CanvasRenderer r = _go.GetComponent<CanvasRenderer>();
 
 		if(r != null){
+			
+			Graphic[] graphics = _go.GetComponents<Graphic>();
 
-			Image img = _go.GetComponent<Image>();
-
-			Text text = _go.GetComponent<Text>();
-
-			RawImage rawImg = _go.GetComponent<RawImage>();
-
-			if(img == null && text == null && rawImg == null){
+			if(graphics.Length == 0){
 
 				GameObject.DestroyImmediate(r,true);
 			}

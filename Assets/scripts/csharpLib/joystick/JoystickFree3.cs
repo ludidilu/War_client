@@ -17,7 +17,7 @@ public class JoystickFree3 : MonoBehaviour {
 	
 	private bool isDown = false;
 	
-	private float maxValue;
+	public float maxValue{private set;get;}
 	
 	void Awake(){
 		
@@ -71,24 +71,22 @@ public class JoystickFree3 : MonoBehaviour {
 				return;
 			}
 
-			float dx = Input.mousePosition.x - downPos.x;
-			
-			float dy = Input.mousePosition.y - downPos.y;
-
-			dx = Mathf.Clamp(dx,-maxValue,maxValue);
-				
-			dy = Mathf.Clamp(dy,-maxValue,maxValue);
+			Vector2 dir = new Vector2(Input.mousePosition.x - downPos.x,Input.mousePosition.y - downPos.y);
 			
 			float dis = Vector2.Distance(downPos,Input.mousePosition);
 			
 			if(dis > maxValue){
 				
 				downPos = Vector2.Lerp(downPos,Input.mousePosition,(dis - maxValue) / dis);
+
+				dis = maxValue;
 				
 				FixDownPos();
 			}
 
-			SuperFunction.Instance.DispatchEvent(gameObject,JoystickData.MOVE,this,new Vector2(dx,dy),downPos);
+			dir = dir.normalized * dis / maxValue;
+
+			SuperFunction.Instance.DispatchEvent(gameObject,JoystickData.MOVE,this,dir,downPos);
 			
 		}else if(Input.GetMouseButtonDown(0)){
 			
