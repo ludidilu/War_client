@@ -16,10 +16,10 @@
 	}
 
 	public double timeStep;
-	public double mapX;
-	public double mapY;
 	public double mapWidth;
 	public double mapHeight;
+	public double spawnX;
+	public double spawnY;
 	public double maxRadius;
 	public double mapBoundFix;
 	public int moveTimes;
@@ -33,16 +33,6 @@
 		return timeStep;
 	}
 
-	public double GetMapX()
-	{
-		return mapX;
-	}
-
-	public double GetMapY()
-	{
-		return mapY;
-	}
-
 	public double GetMapWidth()
 	{
 		return mapWidth;
@@ -51,6 +41,16 @@
 	public double GetMapHeight()
 	{
 		return mapHeight;
+	}
+
+	public double GetSpawnX()
+	{
+		return spawnX;
+	}
+
+	public double GetSpawnY()
+	{
+		return spawnY;
 	}
 
 	public double GetMaxRadius()
