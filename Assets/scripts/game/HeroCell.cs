@@ -37,12 +37,12 @@ public class HeroCell : SuperListCell {
 
 		} else {
 
-			HeroCellData cellData = data as HeroCellData;
+//			HeroCellData cellData = data as HeroCellData;
 
-			if (!cellData.added) {
+//			if (!cellData.added) {
 
 				base.OnPointerClick (eventData);
-			}
+//			}
 		}
 	}  
 

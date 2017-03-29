@@ -17,6 +17,7 @@
 	public double attackTypeData;
 	public bool isHero;
 	public int prize;
+	public int skill;
 
 	public double GetMoveSpeed()
 	{
@@ -100,5 +101,10 @@
 	public int GetPrize()
 	{
 		return prize;
+	}
+
+	public int GetSkill()
+	{
+		return skill;
 	}
 }

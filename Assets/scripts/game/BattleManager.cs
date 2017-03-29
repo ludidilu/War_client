@@ -116,13 +116,25 @@ public class BattleManager : MonoBehaviour {
 
 	private void HeroCellClick(int _id, float _x, float _y){
 
-		int money = battle.clientIsMine ? battle.mMoney : battle.oMoney;
+		if (heroDic [_id].added) {
 
-		UnitSDS sds = StaticData.GetData<UnitSDS> (_id);
+			UnitSDS sds = StaticData.GetData<UnitSDS> (_id);
 
-		if (money >= sds.prize) {
+			if (sds.skill != 0) {
 
-			battle.ClientSendHeroCommand (_id, _x, _y);
+				battle.ClientSendSkillCommand (_id, _x, _y);
+			}
+
+		} else {
+
+			int money = battle.clientIsMine ? battle.mMoney : battle.oMoney;
+
+			UnitSDS sds = StaticData.GetData<UnitSDS> (_id);
+
+			if (money >= sds.prize) {
+
+				battle.ClientSendHeroCommand (_id, _x, _y);
+			}
 		}
 	}
 
@@ -292,25 +304,6 @@ public class BattleManager : MonoBehaviour {
 		}
 
 		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
-
-//		if (heroSuperList.GetSelectedIndex () != -1) {
-//
-//			if (Input.GetMouseButtonUp(0)) {
-//
-//				Ray ray = battleCamera.ScreenPointToRay(Input.mousePosition);
-//
-//				RaycastHit hit;
-//
-//				bool b = Physics.Raycast (ray, out hit);
-//
-//				if (b) {
-//
-//					int fix = battle.clientIsMine ? 1 : -1;
-//
-//					HeroCellClick (heroList[heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
-//				}
-//			}
-//		}
 
 		if (Input.GetKeyUp (KeyCode.F5)) {
 

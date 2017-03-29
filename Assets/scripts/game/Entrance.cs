@@ -9,6 +9,11 @@ public class Entrance : MonoBehaviour {
 		return StaticData.GetData<UnitSDS>(_id);
 	}
 
+	private ISkillSDS getSkillSDS(int _id){
+
+		return StaticData.GetData<SkillSDS> (_id);
+	}
+
 	private static void WriteLog(string _str)
 	{
 		SuperDebug.Log(_str);
@@ -29,7 +34,9 @@ public class Entrance : MonoBehaviour {
 		
 		StaticData.Load<UnitSDS> ("unit");
 
-		Battle.Init (GameConfig.Instance, getUnitSDS);
+		StaticData.Load<SkillSDS> ("skill");
+
+		Battle.Init (GameConfig.Instance, getUnitSDS, getSkillSDS);
 
 		Time.fixedDeltaTime = (float)GameConfig.Instance.timeStep;
 
