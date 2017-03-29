@@ -147,6 +147,8 @@ public class BattleManager : MonoBehaviour {
 			int fix = battle.clientIsMine ? 1 : -1;
 
 			HeroCellClick (heroList [heroSuperList.GetSelectedIndex ()].id, hit.point.x * fix, hit.point.z * fix);
+
+			heroSuperList.SetSelectedIndex (-1);
 		}
 	}
 
