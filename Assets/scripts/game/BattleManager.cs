@@ -24,9 +24,13 @@ public class BattleManager : MonoBehaviour {
 
 	private Battle battle;
 
-	private Dictionary<int, GameObject> goDic = new Dictionary<int, GameObject>();
+	private Dictionary<int, GameObject> unitGoDic = new Dictionary<int, GameObject>();
 
-	private LinkedList<int> goList = new LinkedList<int>();
+	private LinkedList<int> unitGoList = new LinkedList<int>();
+
+	private Dictionary<int, GameObject> skillGoDic = new Dictionary<int, GameObject>();
+
+	private LinkedList<int> skillGoList = new LinkedList<int>();
 
 	private Action battleOverCallBack;
 
@@ -159,16 +163,27 @@ public class BattleManager : MonoBehaviour {
 
 	private void BattleOver(){
 
-		Dictionary<int,GameObject>.ValueCollection.Enumerator enumerator = goDic.Values.GetEnumerator ();
+		Dictionary<int,GameObject>.ValueCollection.Enumerator enumerator = unitGoDic.Values.GetEnumerator ();
 
 		while (enumerator.MoveNext ()) {
 
 			GameObject.Destroy (enumerator.Current);
 		}
 
-		goList.Clear ();
+		enumerator = skillGoDic.Values.GetEnumerator ();
 
-		goDic.Clear ();
+		while (enumerator.MoveNext ()) {
+
+			GameObject.Destroy (enumerator.Current);
+		}
+
+		unitGoList.Clear ();
+
+		unitGoDic.Clear ();
+
+		skillGoList.Clear ();
+
+		skillGoDic.Clear ();
 
 		gameObject.SetActive (false);
 
@@ -320,8 +335,15 @@ public class BattleManager : MonoBehaviour {
 
 	private void Refresh(){
 
+		RefreshUnit ();
+
+		RefreshSkill ();
+	}
+
+	private void RefreshUnit(){
+
 		int fix = battle.clientIsMine ? 1 : -1;
-		
+
 		Dictionary<int, Unit>.Enumerator enumerator = battle.unitDic.GetEnumerator ();
 
 		while (enumerator.MoveNext ()) {
@@ -330,19 +352,19 @@ public class BattleManager : MonoBehaviour {
 
 			Unit unit = enumerator.Current.Value;
 
-			if (goDic.ContainsKey (uid)) {
+			if (unitGoDic.ContainsKey (uid)) {
 
-				GameObject go = goDic [uid];
+				GameObject go = unitGoDic [uid];
 
 				go.transform.localPosition = new Vector3 ((float)unit.pos.x * fix, go.transform.localPosition.y, (float)unit.pos.y * fix);
 
 			} else {
 
-				CreateGo (unit);
+				CreateUnitGo (unit);
 			}
 		}
 
-		LinkedListNode<int> node = goList.First;
+		LinkedListNode<int> node = unitGoList.First;
 
 		while (node != null) {
 
@@ -352,20 +374,79 @@ public class BattleManager : MonoBehaviour {
 
 			if (!battle.unitDic.ContainsKey (uid)) {
 
-				GameObject go = goDic [uid];
+				GameObject go = unitGoDic [uid];
 
 				GameObject.Destroy (go);
 
-				goDic.Remove (uid);
+				unitGoDic.Remove (uid);
 
-				goList.Remove (node);
+				unitGoList.Remove (node);
 			}
 
 			node = nextNode;
 		}
 	}
 
-	private void CreateGo(Unit _unit){
+	private void RefreshSkill(){
+
+		int fix = battle.clientIsMine ? 1 : -1;
+
+		LinkedList<Skill>.Enumerator enumerator = battle.skillList.GetEnumerator ();
+
+		while (enumerator.MoveNext ()) {
+
+			Skill skill = enumerator.Current;
+
+			if (skillGoDic.ContainsKey (skill.uid)) {
+
+				GameObject go = skillGoDic [skill.uid];
+
+				go.transform.localPosition = new Vector3 ((float)skill.pos.x * fix, go.transform.localPosition.y, (float)skill.pos.y * fix);
+
+			} else {
+
+				CreateSkillGo (skill);
+			}
+		}
+
+		LinkedListNode<int> node = skillGoList.First;
+
+		while (node != null) {
+
+			LinkedListNode<int> nextNode = node.Next;
+
+			int uid = node.Value;
+
+			enumerator = battle.skillList.GetEnumerator ();
+
+			bool getSkill = false;
+
+			while (enumerator.MoveNext ()) {
+
+				if (enumerator.Current.uid == uid) {
+
+					getSkill = true;
+
+					break;
+				}
+			}
+
+			if (!getSkill) {
+
+				GameObject go = skillGoDic [uid];
+
+				GameObject.Destroy (go);
+
+				skillGoDic.Remove (uid);
+
+				skillGoList.Remove (node);
+			}
+
+			node = nextNode;
+		}
+	}
+
+	private void CreateUnitGo(Unit _unit){
 
 		int fix = battle.clientIsMine ? 1 : -1;
 
@@ -390,9 +471,40 @@ public class BattleManager : MonoBehaviour {
 
 			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x * fix, y, (float)_unit.pos.y * fix);
 
-			goDic.Add(_unit.uid, _go);
+			unitGoDic.Add(_unit.uid, _go);
 
-			goList.AddLast(_unit.uid);
+			unitGoList.AddLast(_unit.uid);
+		};
+
+		GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", cb);
+	}
+
+	private void CreateSkillGo(Skill _skill){
+
+		int fix = battle.clientIsMine ? 1 : -1;
+
+		Action<GameObject,string> cb = delegate(GameObject _go, string arg2) {
+
+			if(_skill.unit.isMine == battle.clientIsMine){
+
+				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
+
+			}else{
+
+				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
+			}
+
+			float scale = (float)_skill.sds.GetRadius () * 2;
+
+			_go.transform.SetParent (unitContainer, false);
+
+			_go.transform.localScale = new Vector3 (scale, scale, scale);
+
+			_go.transform.localPosition = new Vector3 ((float)_skill.pos.x * fix, 0, (float)_skill.pos.y * fix);
+
+			skillGoDic.Add(_skill.uid, _go);
+
+			skillGoList.AddLast(_skill.uid);
 		};
 
 		GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", cb);
