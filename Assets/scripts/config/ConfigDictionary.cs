@@ -22,4 +22,5 @@ public class ConfigDictionary : Config {
 	public int uid;
 	public string ip;
 	public int port;
+	public string logPath;
 }
