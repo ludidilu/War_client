@@ -397,15 +397,18 @@ public class BattleManager : MonoBehaviour {
 
 			Skill skill = enumerator.Current;
 
-			if (skillGoDic.ContainsKey (skill.uid)) {
+			if (skill.sds.GetObstacleRadius () > 0) {
 
-				GameObject go = skillGoDic [skill.uid];
+				if (skillGoDic.ContainsKey (skill.uid)) {
 
-				go.transform.localPosition = new Vector3 ((float)skill.pos.x * fix, go.transform.localPosition.y, (float)skill.pos.y * fix);
+					GameObject go = skillGoDic [skill.uid];
 
-			} else {
+					go.transform.localPosition = new Vector3 ((float)skill.pos.x * fix, go.transform.localPosition.y, (float)skill.pos.y * fix);
 
-				CreateSkillGo (skill);
+				} else {
+
+					CreateSkillGo (skill);
+				}
 			}
 		}
 
