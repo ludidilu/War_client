@@ -38,18 +38,18 @@ public class Entrance : MonoBehaviour {
 
 		ConfigDictionary.Instance.LoadLocalConfig (Application.streamingAssetsPath + "/local.xml");
 
-		FileInfo fi = new FileInfo (ConfigDictionary.Instance.logPath);
-
-		if (fi.Exists) {
-
-			fi.Delete ();
-		}
-
 		if (string.IsNullOrEmpty (ConfigDictionary.Instance.logPath)) {
 
 			Log.Init (PrintLog, null);
 
 		} else {
+
+			FileInfo fi = new FileInfo (ConfigDictionary.Instance.logPath);
+
+			if (fi.Exists) {
+
+				fi.Delete ();
+			}
 
 			Log.Init (PrintLog, WriteLog);
 		}
