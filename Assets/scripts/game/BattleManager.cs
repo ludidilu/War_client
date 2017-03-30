@@ -494,7 +494,7 @@ public class BattleManager : MonoBehaviour {
 				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
 			}
 
-			float scale = (float)_skill.sds.GetRadius () * 2;
+			float scale = (float)_skill.sds.GetObstacleRadius () * 2;
 
 			_go.transform.SetParent (unitContainer, false);
 

@@ -11,8 +11,7 @@
 	public int hp;
 	public double visionRange;
 	public bool isAirUnit;
-	public bool canAttackAirUnit;
-	public bool canAttackGroundUnit;
+	public int targetType;
 	public int attackType;
 	public double attackTypeData;
 	public bool isHero;
@@ -73,14 +72,9 @@
 		return isAirUnit;
 	}
 
-	public bool GetCanAttackAirUnit()
+	public UnitTargetType GetTargetType()
 	{
-		return canAttackAirUnit;
-	}
-
-	public bool GetCanAttackGroundUnit()
-	{
-		return canAttackGroundUnit;
+		return (UnitTargetType)targetType;
 	}
 
 	public UnitAttackType GetAttackType()
