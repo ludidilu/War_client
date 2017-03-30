@@ -45,7 +45,14 @@ public class Entrance : MonoBehaviour {
 			fi.Delete ();
 		}
 
-		Log.Init (PrintLog, WriteLog);
+		if (string.IsNullOrEmpty (ConfigDictionary.Instance.logPath)) {
+
+			Log.Init (PrintLog, null);
+
+		} else {
+
+			Log.Init (PrintLog, WriteLog);
+		}
 
 		GameConfig.Instance.LoadLocalConfig (ConfigDictionary.Instance.configPath);
 		
