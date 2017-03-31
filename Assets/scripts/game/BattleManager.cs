@@ -239,7 +239,9 @@ public class BattleManager : MonoBehaviour {
 
 				GameObject go = unitGoDic [uid];
 
-				go.transform.localPosition = new Vector3 ((float)unit.pos.x * fix, go.transform.localPosition.y, (float)unit.pos.y * fix);
+				RVO.Vector2 tmpPos = unit.pos;
+
+				go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, go.transform.localPosition.y, (float)tmpPos.y * fix);
 
 			} else {
 
@@ -286,7 +288,9 @@ public class BattleManager : MonoBehaviour {
 
 					GameObject go = skillGoDic [skill.uid];
 
-					go.transform.localPosition = new Vector3 ((float)skill.pos.x * fix, go.transform.localPosition.y, (float)skill.pos.y * fix);
+					RVO.Vector2 tmpPos = skill.pos;
+
+					go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, go.transform.localPosition.y, (float)tmpPos.y * fix);
 
 				} else {
 
@@ -355,7 +359,9 @@ public class BattleManager : MonoBehaviour {
 
 			float y = _unit.sds.GetIsAirUnit() ? AIR_UNIT_Y : 0f;
 
-			_go.transform.localPosition = new Vector3 ((float)_unit.pos.x * fix, y, (float)_unit.pos.y * fix);
+			RVO.Vector2 tmpPos = _unit.pos;
+
+			_go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, y, (float)tmpPos.y * fix);
 
 			unitGoDic.Add(_unit.uid, _go);
 
@@ -386,7 +392,9 @@ public class BattleManager : MonoBehaviour {
 
 			_go.transform.localScale = new Vector3 (scale, 0.1f, scale);
 
-			_go.transform.localPosition = new Vector3 ((float)_skill.pos.x * fix, 0, (float)_skill.pos.y * fix);
+			RVO.Vector2 tmpPos = _skill.pos;
+
+			_go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, 0, (float)tmpPos.y * fix);
 
 			skillGoDic.Add(_skill.uid, _go);
 
