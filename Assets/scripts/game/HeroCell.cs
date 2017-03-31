@@ -10,11 +10,19 @@ public class HeroCellData{
 
 	public bool added;
 
-	public HeroCellData(int _id, bool _added){
+	public int cd;
+
+	public bool selectable;
+
+	public HeroCellData(int _id, bool _added, int _cd, bool _selectable){
 
 		id = _id;
 
 		added = _added;
+
+		cd = _cd;
+
+		selectable = _selectable;
 	}
 }
 
@@ -29,6 +37,9 @@ public class HeroCell : SuperListCell {
 	[SerializeField]
 	private Text prizeTf;
 
+	[SerializeField]
+	private Image cdImg;
+
 	public override void OnPointerClick (PointerEventData eventData)
 	{
 		if (selected) {
@@ -37,12 +48,12 @@ public class HeroCell : SuperListCell {
 
 		} else {
 
-//			HeroCellData cellData = data as HeroCellData;
+			HeroCellData cellData = data as HeroCellData;
 
-//			if (!cellData.added) {
+			if(cellData.selectable){
 
 				base.OnPointerClick (eventData);
-//			}
+			}
 		}
 	}  
 
@@ -61,8 +72,28 @@ public class HeroCell : SuperListCell {
 			idTf.color = Color.red;
 
 		} else {
-
+			
 			idTf.color = Color.black;
+		}
+
+		if (cellData.cd == 0){
+
+			cdImg.gameObject.SetActive(false);
+
+		} else {
+
+			cdImg.gameObject.SetActive(true);
+
+			UnitSDS unitSDS = StaticData.GetData<UnitSDS>(cellData.id);
+
+			SkillSDS skillSDS = StaticData.GetData<SkillSDS>(unitSDS.skill);
+
+			cdImg.fillAmount = (float)cellData.cd / skillSDS.cd;
+		}
+
+		if (selected && !cellData.selectable) {
+
+			superList.SetSelectedIndex(-1);
 		}
 
 		return base.SetData (_data);

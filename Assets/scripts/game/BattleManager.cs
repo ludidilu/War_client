@@ -77,7 +77,7 @@ public class BattleManager : MonoBehaviour {
 
 			if (sds.isHero) {
 
-				HeroCellData cellData = new HeroCellData (sds.ID, false);
+				HeroCellData cellData = new HeroCellData (sds.ID, false, 0, true);
 
 				heroList.Add (cellData);
 
@@ -203,125 +203,6 @@ public class BattleManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		bool refresh = false;
-
-		Dictionary<int, int> unitPool;
-
-		Dictionary<int, Unit> heroPool;
-
-		Dictionary<int, Dictionary<int, UnitCommandData>> unitCommandPool;
-
-		Dictionary<int, HeroCommandData> heroCommandPool;
-
-		if (battle.clientIsMine) {
-
-			unitPool = battle.mUnitPool;
-
-			heroPool = battle.mHeroPool;
-
-			unitCommandPool = battle.mUnitCommandPool;
-
-			heroCommandPool = battle.mHeroCommandPool;
-
-		} else {
-
-			unitPool = battle.oUnitPool;
-
-			heroPool = battle.oHeroPool;
-
-			unitCommandPool = battle.oUnitCommandPool;
-
-			heroCommandPool = battle.oHeroCommandPool;
-		}
-
-		Dictionary<int, UnitCellData>.ValueCollection.Enumerator enumerator = unitDic.Values.GetEnumerator ();
-
-		while (enumerator.MoveNext ()) {
-
-			UnitCellData cellData = enumerator.Current;
-
-			int num;
-
-			if (unitPool.ContainsKey (cellData.id)) {
-
-				num = unitPool [cellData.id];
-
-			} else {
-
-				num = 0;
-			}
-
-			Dictionary<int, Dictionary<int, UnitCommandData>>.ValueCollection.Enumerator enumerator3 = unitCommandPool.Values.GetEnumerator ();
-
-			while (enumerator3.MoveNext ()) {
-
-				Dictionary<int, UnitCommandData>.ValueCollection.Enumerator enumerator4 = enumerator3.Current.Values.GetEnumerator ();
-
-				while (enumerator4.MoveNext ()) {
-
-					if (enumerator4.Current.id == cellData.id) {
-
-						num++;
-					}
-				}
-			}
-
-			if (cellData.num != num) {
-
-				cellData.num = num;
-
-				refresh = true;
-			}
-		}
-
-		if (refresh) {
-
-			unitSuperList.SetDataAndKeepLocation (unitList);
-
-			refresh = false;
-		}
-
-		Dictionary<int, HeroCellData>.ValueCollection.Enumerator enumerator2 = heroDic.Values.GetEnumerator ();
-
-		while (enumerator2.MoveNext ()) {
-
-			HeroCellData cellData = enumerator2.Current;
-
-			bool b = heroPool.ContainsKey (cellData.id);
-
-			if (!b) {
-
-				if (heroCommandPool.ContainsKey (cellData.id)) {
-
-					b = true;
-				}
-			}
-
-			if (cellData.added != b) {
-
-				cellData.added = b;
-
-				refresh = true;
-			}
-		}
-
-		if (refresh) {
-
-			int lastIndex = heroSuperList.GetSelectedIndex ();
-
-			heroSuperList.SetDataAndKeepLocation (heroList);
-
-			if (lastIndex != -1) {
-
-				if (heroList [lastIndex].added) {
-
-					heroSuperList.SetSelectedIndex (-1);
-				}
-			}
-		}
-
-		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
-
 		if (Input.GetKeyUp (KeyCode.F5)) {
 
 			battle.ClientRequestRefresh ();
@@ -338,6 +219,8 @@ public class BattleManager : MonoBehaviour {
 		RefreshUnit ();
 
 		RefreshSkill ();
+
+		RefreshUi ();
 	}
 
 	private void RefreshUnit(){
@@ -397,7 +280,7 @@ public class BattleManager : MonoBehaviour {
 
 			Skill skill = enumerator.Current;
 
-			if (skill.sds.GetObstacleRadius () > 0) {
+			if (skill.sds.GetEffectRadius () > 0) {
 
 				if (skillGoDic.ContainsKey (skill.uid)) {
 
@@ -497,11 +380,11 @@ public class BattleManager : MonoBehaviour {
 				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
 			}
 
-			float scale = (float)_skill.sds.GetObstacleRadius () * 2;
+			float scale = (float)_skill.sds.GetEffectRadius () * 2;
 
 			_go.transform.SetParent (unitContainer, false);
 
-			_go.transform.localScale = new Vector3 (scale, scale, scale);
+			_go.transform.localScale = new Vector3 (scale, 0.1f, scale);
 
 			_go.transform.localPosition = new Vector3 ((float)_skill.pos.x * fix, 0, (float)_skill.pos.y * fix);
 
@@ -511,5 +394,167 @@ public class BattleManager : MonoBehaviour {
 		};
 
 		GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", cb);
+	}
+
+	private void RefreshUi(){
+
+		bool refresh = false;
+
+		Dictionary<int, int> unitPool;
+
+		Dictionary<int, Unit> heroPool;
+
+		Dictionary<int, Dictionary<int, UnitCommandData>> unitCommandPool;
+
+		Dictionary<int, HeroCommandData> heroCommandPool;
+
+		Dictionary<int, SkillCommandData> skillCommandPool;
+
+		if (battle.clientIsMine) {
+
+			unitPool = battle.mUnitPool;
+
+			heroPool = battle.mHeroPool;
+
+			unitCommandPool = battle.mUnitCommandPool;
+
+			heroCommandPool = battle.mHeroCommandPool;
+
+			skillCommandPool = battle.mSkillCommandPool;
+
+		} else {
+
+			unitPool = battle.oUnitPool;
+
+			heroPool = battle.oHeroPool;
+
+			unitCommandPool = battle.oUnitCommandPool;
+
+			heroCommandPool = battle.oHeroCommandPool;
+
+			skillCommandPool = battle.oSkillCommandPool;
+		}
+
+		Dictionary<int, UnitCellData>.ValueCollection.Enumerator enumerator = unitDic.Values.GetEnumerator ();
+
+		while (enumerator.MoveNext ()) {
+
+			UnitCellData cellData = enumerator.Current;
+
+			int num;
+
+			if (unitPool.ContainsKey (cellData.id)) {
+
+				num = unitPool [cellData.id];
+
+			} else {
+
+				num = 0;
+			}
+
+			Dictionary<int, Dictionary<int, UnitCommandData>>.ValueCollection.Enumerator enumerator3 = unitCommandPool.Values.GetEnumerator ();
+
+			while (enumerator3.MoveNext ()) {
+
+				Dictionary<int, UnitCommandData>.ValueCollection.Enumerator enumerator4 = enumerator3.Current.Values.GetEnumerator ();
+
+				while (enumerator4.MoveNext ()) {
+
+					if (enumerator4.Current.id == cellData.id) {
+
+						num++;
+					}
+				}
+			}
+
+			if (cellData.num != num) {
+
+				cellData.num = num;
+
+				refresh = true;
+			}
+		}
+
+		if (refresh) {
+
+			unitSuperList.SetDataAndKeepLocation (unitList);
+
+			refresh = false;
+		}
+
+		Dictionary<int, HeroCellData>.ValueCollection.Enumerator enumerator2 = heroDic.Values.GetEnumerator ();
+
+		while (enumerator2.MoveNext ()) {
+
+			HeroCellData cellData = enumerator2.Current;
+
+			bool added = heroPool.ContainsKey (cellData.id);
+
+			int cd = 0;
+
+			bool selectable = true;
+
+			if (!added) {
+
+				if (heroCommandPool.ContainsKey (cellData.id)) {
+
+					added = true;
+
+					selectable = false;
+				}
+
+			}else{
+
+				Unit hero = heroPool[cellData.id];
+
+				if(hero.sds.GetSkill() != 0){
+
+					cd = hero.skillCd;
+				}
+			}
+
+			if(selectable && added){
+
+				if(cd > 0){
+
+					selectable = false;
+
+				}else{
+
+					if(skillCommandPool.ContainsKey(cellData.id)){
+
+						selectable = false;
+					}
+				}
+			}
+
+			if (cellData.added != added) {
+
+				cellData.added = added;
+
+				refresh = true;
+			}
+
+			if(cellData.cd != cd){
+
+				cellData.cd = cd;
+
+				refresh = true;
+			}
+
+			if(cellData.selectable != selectable){
+
+				cellData.selectable = selectable;
+
+				refresh = true;
+			}
+		}
+
+		if (refresh) {
+
+			heroSuperList.SetDataAndKeepLocation (heroList);
+		}
+
+		moneyTf.text = battle.clientIsMine ? battle.mMoney.ToString () : battle.oMoney.ToString ();
 	}
 }

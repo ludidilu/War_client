@@ -1,5 +1,6 @@
 ﻿public class SkillSDS : CsvBase, ISkillSDS
 {
+	public int cd;
 	public int skillType;
 	public int time;
 	public double moveSpeed;
@@ -10,6 +11,11 @@
 	public double effectRadius;
 	public int effect;
 	public int[] effectData;
+
+	public int GetCd()
+	{
+		return cd;
+	}
 
 	public SkillType GetSkillType()
 	{
