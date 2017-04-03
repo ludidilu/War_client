@@ -22,6 +22,9 @@ public class BattleManager : MonoBehaviour {
 	[SerializeField]
 	private Camera battleCamera;
 
+	[SerializeField]
+	public GameObject battleMain;
+
 	private Battle battle;
 
 	private Dictionary<int, GameObject> unitGoDic = new Dictionary<int, GameObject>();

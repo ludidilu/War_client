@@ -5,6 +5,9 @@ using System.IO;
 
 public class Entrance : MonoBehaviour {
 
+	[SerializeField]
+	private string nextScene;
+
 	private IUnitSDS getUnitSDS(int _id){
 
 		return StaticData.GetData<UnitSDS>(_id);
@@ -68,14 +71,9 @@ public class Entrance : MonoBehaviour {
 
 		Time.fixedDeltaTime = (float)GameConfig.Instance.timeStep;
 
-		SceneManager.LoadScene ("battle");
+		SceneManager.LoadScene (nextScene);
 	}
 
-	private void GetBytes(byte[] _bytes){
-
-
-	}
-	
 	// Update is called once per frame
 	void Update () {
 	
