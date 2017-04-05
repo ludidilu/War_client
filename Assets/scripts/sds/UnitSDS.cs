@@ -17,6 +17,7 @@
 	public bool isHero;
 	public int prize;
 	public int skill;
+	public int spawnSkill;
 
 	public double GetMoveSpeed()
 	{
@@ -100,5 +101,10 @@
 	public int GetSkill()
 	{
 		return skill;
+	}
+
+	public int GetSpawnSkill()
+	{
+		return spawnSkill;
 	}
 }
