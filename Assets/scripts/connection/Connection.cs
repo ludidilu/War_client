@@ -42,9 +42,11 @@ public class Connection : MonoBehaviour
     {
         receiveCallBack = _receiveCallBack;
 
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		IPAddress ipa = Dns.GetHostAddresses(_ip)[0];
 
-        IPEndPoint ipe = new IPEndPoint(IPAddress.Parse(_ip), _port);
+		socket = new Socket(ipa.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+		IPEndPoint ipe = new IPEndPoint(ipa, _port);
 
         socket.Connect(ipe);
 
