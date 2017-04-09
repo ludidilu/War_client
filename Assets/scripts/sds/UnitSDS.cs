@@ -10,13 +10,15 @@
 	public double attackStep;
 	public int hp;
 	public double visionRange;
-	public int targetType;
+	public int[] targetType;
 	public int attackType;
 	public double attackTypeData;
 	public bool isHero;
 	public int prize;
 	public int skill;
 	public int spawnSkill;
+
+	private UnitType[] targetTypeFix;
 
 	public UnitType GetUnitType()
 	{
@@ -68,9 +70,9 @@
 		return visionRange;
 	}
 
-	public UnitTargetType GetTargetType()
+	public UnitType[] GetTargetType()
 	{
-		return (UnitTargetType)targetType;
+		return targetTypeFix;
 	}
 
 	public UnitAttackType GetAttackType()
@@ -101,5 +103,15 @@
 	public int GetSpawnSkill()
 	{
 		return spawnSkill;
+	}
+
+	public override void Fix()
+	{
+		targetTypeFix = new UnitType[targetType.Length];
+
+		for (int i = 0; i < targetType.Length; i++)
+		{
+			targetTypeFix[i] = (UnitType)targetType[i];
+		}
 	}
 }

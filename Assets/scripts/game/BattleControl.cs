@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class BattleControl : MonoBehaviour {
 
@@ -20,6 +21,14 @@ public class BattleControl : MonoBehaviour {
 
 	[SerializeField]
 	private BattleManager battleManager;
+
+	[SerializeField]
+	private GameObject panel;
+
+	[SerializeField]
+	private Text btText;
+
+	private PlayerState playerState;
 
 	// Use this for initialization
 	void Start () {
@@ -64,12 +73,7 @@ public class BattleControl : MonoBehaviour {
 				switch (type) {
 
 				case 0:
-
-					if (!battleManager.gameObject.activeSelf) {
-
-						battleManager.BattleStart ();
-					}
-
+					
 					short length = br.ReadInt16 ();
 
 					byte[] bytes = br.ReadBytes (length);
@@ -80,27 +84,29 @@ public class BattleControl : MonoBehaviour {
 
 				case 1:
 
-					PlayerState playerState = (PlayerState)br.ReadInt16 ();
+					playerState = (PlayerState)br.ReadInt16 ();
 
 					switch (playerState) {
 
 					case PlayerState.BATTLE:
 
-						if (!battleManager.gameObject.activeSelf) {
-
-							battleManager.BattleStart ();
-						}
+						battleManager.BattleStart ();
 
 						break;
 
 					case PlayerState.FREE:
 						
-						RequestBattle ();
+						panel.SetActive (true);
+
+						btText.text = "Search";
 
 						break;
 
 					case PlayerState.SEARCH:
 
+						panel.SetActive (true);
+
+						btText.text = "Cancel";
 
 						break;
 					}
@@ -108,6 +114,18 @@ public class BattleControl : MonoBehaviour {
 					break;
 				}
 			}
+		}
+	}
+
+	public void Click(){
+
+		if (playerState == PlayerState.FREE) {
+
+			RequestBattle ();
+
+		} else {
+
+			CancelRequestBattle ();
 		}
 	}
 
@@ -120,6 +138,21 @@ public class BattleControl : MonoBehaviour {
 				bw.Write ((short)1);
 
 				bw.Write ((short)PlayerAction.SEARCH);
+
+				Connection.Instance.Send (ms);
+			}
+		}
+	}
+
+	private void CancelRequestBattle(){
+
+		using (MemoryStream ms = new MemoryStream ()) {
+
+			using (BinaryWriter bw = new BinaryWriter (ms)) {
+
+				bw.Write ((short)1);
+
+				bw.Write ((short)PlayerAction.CANCEL_SEARCH);
 
 				Connection.Instance.Send (ms);
 			}

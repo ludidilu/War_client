@@ -6,11 +6,13 @@
 	public double moveSpeed;
 	public double range;
 	public double obstacleRadius;
-	public int effectTargetType;
+	public int[] effectTargetType;
 	public int effectTarget;
 	public double effectRadius;
 	public int effect;
 	public int[] effectData;
+
+	private UnitType[] effectTargetTypeFix;
 
 	public int GetCd()
 	{
@@ -42,9 +44,9 @@
 		return obstacleRadius;
 	}
 
-	public UnitTargetType GetEffectTargetType()
+	public UnitType[] GetEffectTargetType()
 	{
-		return (UnitTargetType)effectTargetType;
+		return effectTargetTypeFix;
 	}
 
 	public SkillEffectTarget GetEffectTarget()
@@ -65,5 +67,15 @@
 	public int[] GetEffectData()
 	{
 		return effectData;
+	}
+
+	public override void Fix()
+	{
+		effectTargetTypeFix = new UnitType[effectTargetType.Length];
+
+		for (int i = 0; i < effectTargetType.Length; i++)
+		{
+			effectTargetTypeFix[i] = (UnitType)effectTargetType[i];
+		}
 	}
 }
