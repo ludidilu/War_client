@@ -360,7 +360,7 @@ public class BattleManager : MonoBehaviour {
 
 			_go.transform.localScale = new Vector3 (scale, scale, scale);
 
-			float y = _unit.sds.GetIsAirUnit() ? AIR_UNIT_Y : 0f;
+			float y = _unit.sds.GetUnitType() == UnitType.AIR_UNIT ? AIR_UNIT_Y : 0f;
 
 			RVO.Vector2 tmpPos = _unit.pos;
 

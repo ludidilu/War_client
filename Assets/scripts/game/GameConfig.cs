@@ -20,6 +20,9 @@
 	public double mapHeight;
 	public double spawnX;
 	public double spawnY;
+	public double baseX;
+	public double baseY;
+	public int baseID;
 	public double maxRadius;
 	public double mapBoundFix;
 	public int moveTimes;
@@ -51,6 +54,21 @@
 	public double GetSpawnY()
 	{
 		return spawnY;
+	}
+
+	public double GetBaseX()
+	{
+		return baseX;
+	}
+
+	public double GetBaseY()
+	{
+		return baseY;
+	}
+
+	public int GetBaseID()
+	{
+		return baseID;
 	}
 
 	public double GetMaxRadius()

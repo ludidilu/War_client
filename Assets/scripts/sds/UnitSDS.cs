@@ -1,6 +1,6 @@
 ﻿public class UnitSDS : CsvBase, IUnitSDS
 {
-
+	public int unitType;
 	public double moveSpeed;
 	public double radius;
 	public int weight;
@@ -10,7 +10,6 @@
 	public double attackStep;
 	public int hp;
 	public double visionRange;
-	public bool isAirUnit;
 	public int targetType;
 	public int attackType;
 	public double attackTypeData;
@@ -19,27 +18,28 @@
 	public int skill;
 	public int spawnSkill;
 
+	public UnitType GetUnitType()
+	{
+		return (UnitType)unitType;
+	}
+
 	public double GetMoveSpeed()
 	{
-
 		return moveSpeed;
 	}
 
 	public double GetRadius()
 	{
-
 		return radius;
 	}
 
 	public int GetWeight()
 	{
-
 		return weight;
 	}
 
 	public double GetQueuePos()
 	{
-
 		return queuePos;
 	}
 
@@ -66,11 +66,6 @@
 	public double GetVisionRange()
 	{
 		return visionRange;
-	}
-
-	public bool GetIsAirUnit()
-	{
-		return isAirUnit;
 	}
 
 	public UnitTargetType GetTargetType()
