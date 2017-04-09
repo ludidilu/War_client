@@ -90,6 +90,11 @@ public class BattleControl : MonoBehaviour {
 
 					case PlayerState.BATTLE:
 
+						if (panel.activeSelf) {
+
+							panel.SetActive (false);
+						}
+
 						battleManager.BattleStart ();
 
 						break;
