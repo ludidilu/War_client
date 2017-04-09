@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class BattleControl : MonoBehaviour {
 
@@ -30,7 +31,7 @@ public class BattleControl : MonoBehaviour {
 
 	private void BattleOver(){
 
-
+		SceneManager.LoadScene ("entrance");
 	}
 
 	private void SendData(MemoryStream _ms){
@@ -93,7 +94,7 @@ public class BattleControl : MonoBehaviour {
 						break;
 
 					case PlayerState.FREE:
-
+						
 						RequestBattle ();
 
 						break;

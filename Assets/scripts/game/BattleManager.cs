@@ -35,7 +35,9 @@ public class BattleManager : MonoBehaviour {
 
 	private LinkedList<int> skillGoList = new LinkedList<int>();
 
-	private Action battleOverCallBack;
+	private Action overCallBack;
+
+	private bool isStart = false;
 
 	//----ui
 	[SerializeField]
@@ -47,6 +49,12 @@ public class BattleManager : MonoBehaviour {
 	[SerializeField]
 	private Text moneyTf;
 
+	[SerializeField]
+	private GameObject alertPanel;
+
+	[SerializeField]
+	private Text alertText;
+
 	private List<UnitCellData> unitList = new List<UnitCellData> ();
 
 	private Dictionary<int, UnitCellData> unitDic = new Dictionary<int, UnitCellData> ();
@@ -56,19 +64,19 @@ public class BattleManager : MonoBehaviour {
 	private Dictionary<int, HeroCellData> heroDic = new Dictionary<int, HeroCellData>();
 	//----
 
-	public void Init(Action<MemoryStream> _sendDataCallBack, Action _battleOverCallBack){
+	public void Init(Action<MemoryStream> _sendDataCallBack, Action _overCallBack){
 
 		battle = new Battle ();
 
-		battle.ClientInit (_sendDataCallBack, Refresh, BattleOver, SendCommandOK);
+		overCallBack = _overCallBack;
+
+		battle.ClientInit (_sendDataCallBack, Refresh, SendCommandOK, BattleOver);
 
 		SuperRaycast.SetIsOpen (true, "1");
 
 		SuperRaycast.checkBlockByUi = true;
 
 		SuperRaycast.SetCamera (battleCamera);
-
-		battleOverCallBack = _battleOverCallBack;
 
 		Dictionary<int, UnitSDS> tmpDic = StaticData.GetDic<UnitSDS> ();
 
@@ -161,10 +169,57 @@ public class BattleManager : MonoBehaviour {
 
 	public void BattleStart(){
 
+		isStart = true;
+
 		gameObject.SetActive (true);
 	}
 
-	private void BattleOver(){
+	private void BattleOver(bool _mWin, bool _oWin){
+
+		isStart = false;
+
+		alertPanel.SetActive (true);
+
+		string str;
+
+		if (_mWin && !_oWin) {
+
+			if (battle.clientIsMine) {
+
+				str = "You win!";
+
+			} else {
+
+				str = "You lose!";
+			}
+
+		} else if (!_mWin & _oWin) {
+
+			if (!battle.clientIsMine) {
+
+				str = "You win!";
+
+			} else {
+
+				str = "You lose!";
+			}
+
+		} else {
+
+			str = "Draw game!";
+		}
+
+		alertText.text = str;
+	}
+
+	public void AlertPanelClick(){
+
+		alertPanel.SetActive (false);
+
+		BattleOverReal ();
+	}
+
+	private void BattleOverReal(){
 
 		Dictionary<int,GameObject>.ValueCollection.Enumerator enumerator = unitGoDic.Values.GetEnumerator ();
 
@@ -190,7 +245,10 @@ public class BattleManager : MonoBehaviour {
 
 		gameObject.SetActive (false);
 
-		battleOverCallBack ();
+		if (overCallBack != null) {
+
+			overCallBack ();
+		}
 	}
 
 	private void SendCommandOK(bool _b){
@@ -206,15 +264,24 @@ public class BattleManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (Input.GetKeyUp (KeyCode.F5)) {
+		if (isStart) {
 
-			battle.ClientRequestRefresh ();
+			if (Input.GetKeyUp (KeyCode.F5)) {
+
+				battle.ClientRequestRefresh ();
+			}
 		}
 	}
 
 	void FixedUpdate(){
 
-		battle.Update ();
+		if (isStart) {
+
+			bool mWin;
+			bool oWin;
+
+			battle.Update (out mWin, out oWin);
+		}
 	}
 
 	private void Refresh(){

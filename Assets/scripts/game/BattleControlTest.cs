@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System;
 using superRaycast;
+using UnityEngine.SceneManagement;
 
 public class BattleControlTest : MonoBehaviour {
 
@@ -20,12 +21,16 @@ public class BattleControlTest : MonoBehaviour {
 
 	private Battle battleServer;
 
+	private bool isStart = false;
+
 	// Use this for initialization
 	void Start () {
 
 		battleServer = new Battle ();
 
-		battleServer.ServerInit (ServerSendData, BattleOver);
+		battleServer.ServerInit (ServerSendData);
+
+		battleServer.ServerStart ();
 
 		Action<MemoryStream> dele = delegate(MemoryStream obj) {
 		
@@ -34,7 +39,7 @@ public class BattleControlTest : MonoBehaviour {
 
 		battleManager1.Init (dele, BattleOver);
 
-		battleManager1.gameObject.SetActive (true);
+		battleManager1.BattleStart ();
 
 		dele = delegate(MemoryStream obj) {
 
@@ -45,18 +50,36 @@ public class BattleControlTest : MonoBehaviour {
 
 		battleManager2.Init (dele, BattleOver);
 
-		battleManager2.gameObject.SetActive (true);
+		battleManager2.BattleStart ();
 
 		battleMain2.SetActive (false);
 
 		battleServer.ServerRefresh (true);
 
 		battleServer.ServerRefresh (false);
+
+		isStart = true;
+	}
+
+	private void BattleOver(){
+
+		SceneManager.LoadScene ("entrance");
 	}
 
 	void FixedUpdate(){
 
-		battleServer.Update ();
+		if (isStart) {
+
+			bool mWin;
+			bool oWin;
+
+			battleServer.Update (out mWin, out oWin);
+
+			if (mWin || oWin) {
+
+				isStart = false;
+			}
+		}
 	}
 
 	private void ClientSendData(bool _isMine, MemoryStream _ms){
@@ -76,11 +99,6 @@ public class BattleControlTest : MonoBehaviour {
 		}
 	}
 
-	private void BattleOver(){
-
-
-	}
-	
 	// Update is called once per frame
 	void Update () {
 	

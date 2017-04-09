@@ -2,11 +2,16 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System.IO;
+using superList;
+using System.Collections.Generic;
 
 public class Entrance : MonoBehaviour {
 
 	[SerializeField]
-	private string nextScene;
+	private SuperList superList;
+
+	[SerializeField]
+	private string[] scenes;
 
 	private IUnitSDS getUnitSDS(int _id){
 
@@ -71,7 +76,16 @@ public class Entrance : MonoBehaviour {
 
 		Time.fixedDeltaTime = (float)GameConfig.Instance.timeStep;
 
-		SceneManager.LoadScene (nextScene);
+		superList.CellClickHandle = Click;
+
+		List<string> list = new List<string> (scenes);
+
+		superList.SetData (list);
+	}
+
+	private void Click(object _obj){
+
+		SceneManager.LoadScene ((string)_obj);
 	}
 
 	// Update is called once per frame
