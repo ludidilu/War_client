@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using System.IO;
 using superList;
 using System.Collections.Generic;
+using gameObjectFactory;
 
 public class Entrance : MonoBehaviour {
 
@@ -12,6 +13,9 @@ public class Entrance : MonoBehaviour {
 
 	[SerializeField]
 	private string[] scenes;
+
+	[SerializeField]
+	private string[] preloadPrefabs;
 
 	private IUnitSDS getUnitSDS(int _id){
 
@@ -75,6 +79,11 @@ public class Entrance : MonoBehaviour {
 		Battle.Init (GameConfig.Instance, getUnitSDS, getSkillSDS);
 
 		Time.fixedDeltaTime = (float)GameConfig.Instance.timeStep;
+
+		GameObjectFactory.Instance.PreloadGameObjects (preloadPrefabs, PreloadOK);
+	}
+
+	private void PreloadOK(string _msg){
 
 		superList.CellClickHandle = Click;
 
