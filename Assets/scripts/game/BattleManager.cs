@@ -35,6 +35,10 @@ public class BattleManager : MonoBehaviour {
 
 	private LinkedList<int> skillGoList = new LinkedList<int>();
 
+	private Dictionary<int, LineRenderer> lrDic = new Dictionary<int, LineRenderer> ();
+
+	private LinkedList<LineRenderer> lrPool = new LinkedList<LineRenderer> ();
+
 	private Action overCallBack;
 
 	private bool isStart = false;
@@ -305,17 +309,41 @@ public class BattleManager : MonoBehaviour {
 
 			Unit unit = enumerator.Current.Value;
 
+			Vector3 pos = GetUnitPos (unit);
+
 			if (unitGoDic.ContainsKey (uid)) {
 
 				GameObject go = unitGoDic [uid];
 
-				RVO.Vector2 tmpPos = unit.pos;
-
-				go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, go.transform.localPosition.y, (float)tmpPos.y * fix);
+				go.transform.localPosition = pos;
 
 			} else {
 
-				CreateUnitGo (unit);
+				float scale = (float)unit.sds.GetRadius () * 2;
+
+				CreateUnitGo (unit.uid, unit.isMine, scale, pos);
+			}
+
+			LineRenderer lr = lrDic [uid];
+
+			if (unit.targetUid != -1) {
+
+				if (battle.unitDic.ContainsKey (unit.targetUid)) {
+
+					lr.gameObject.SetActive (true);
+
+					lr.SetPosition (0, pos);
+
+					lr.SetPosition (1, GetUnitPos (battle.unitDic [unit.targetUid]));
+
+				} else {
+
+					lr.gameObject.SetActive (false);
+				}
+
+			} else {
+
+				lr.gameObject.SetActive (false);
 			}
 		}
 
@@ -329,17 +357,30 @@ public class BattleManager : MonoBehaviour {
 
 			if (!battle.unitDic.ContainsKey (uid)) {
 
-				GameObject go = unitGoDic [uid];
-
-				GameObject.Destroy (go);
-
-				unitGoDic.Remove (uid);
+				RemoveUnitGo (uid);
 
 				unitGoList.Remove (node);
 			}
 
 			node = nextNode;
 		}
+	}
+
+	private void RemoveUnitGo(int _uid){
+
+		GameObject go = unitGoDic [_uid];
+
+		unitGoDic.Remove (_uid);
+
+		GameObject.Destroy (go);
+
+		LineRenderer lr = lrDic [_uid];
+
+		lrDic.Remove (_uid);
+
+		lr.gameObject.SetActive (false);
+
+		lrPool.AddLast (lr);
 	}
 
 	private void RefreshSkill(){
@@ -406,39 +447,73 @@ public class BattleManager : MonoBehaviour {
 		}
 	}
 
-	private void CreateUnitGo(Unit _unit){
-
-		int fix = battle.clientIsMine ? 1 : -1;
+	private void CreateUnitGo(int _uid, bool _isMine, float _scale, Vector3 _pos){
 
 		Action<GameObject,string> cb = delegate(GameObject _go, string arg2) {
-
-			if(_unit.isMine == battle.clientIsMine){
-
-				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
-
-			}else{
-
-				_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
-			}
-
-			float scale = (float)_unit.sds.GetRadius () * 2;
-
+			
 			_go.transform.SetParent (unitContainer, false);
 
-			_go.transform.localScale = new Vector3 (scale, scale, scale);
-
-			float y = _unit.sds.GetUnitType() == UnitType.AIR_UNIT ? AIR_UNIT_Y : 0f;
-
-			RVO.Vector2 tmpPos = _unit.pos;
-
-			_go.transform.localPosition = new Vector3 ((float)tmpPos.x * fix, y, (float)tmpPos.y * fix);
-
-			unitGoDic.Add(_unit.uid, _go);
-
-			unitGoList.AddLast(_unit.uid);
+			GetUnitGo(_go, _uid, _isMine, _scale, _pos);
 		};
 
 		GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", cb);
+	}
+
+	private Vector3 GetUnitPos(Unit _unit){
+
+		int fix = battle.clientIsMine ? 1 : -1;
+
+		float y = _unit.sds.GetUnitType() == UnitType.AIR_UNIT ? AIR_UNIT_Y : 0f;
+
+		RVO.Vector2 tmpPos = _unit.pos;
+
+		return new Vector3 ((float)tmpPos.x * fix, y, (float)tmpPos.y * fix);
+	}
+
+	private void GetUnitGo(GameObject _go, int _uid, bool _isMine, float _scale, Vector3 _pos){
+
+		if(_isMine == battle.clientIsMine){
+
+			_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
+
+		}else{
+
+			_go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
+		}
+
+		_go.transform.localScale = new Vector3 (_scale, _scale, _scale);
+
+		_go.transform.localPosition = _pos;
+
+		unitGoDic.Add(_uid, _go);
+
+		unitGoList.AddLast(_uid);
+
+		LineRenderer lr = CreateLine();
+
+		lrDic.Add(_uid, lr);
+	}
+
+	private LineRenderer CreateLine(){
+
+		LineRenderer lr;
+
+		if (lrPool.Count > 0) {
+
+			lr = lrPool.Last.Value;
+
+			lrPool.RemoveLast ();
+
+		} else {
+
+			GameObject go = new GameObject ();
+
+			lr = go.AddComponent<LineRenderer> ();
+
+			lr.SetWidth (0.1f, 0.1f);
+		}
+
+		return lr;
 	}
 
 	private void CreateSkillGo(Skill _skill){
