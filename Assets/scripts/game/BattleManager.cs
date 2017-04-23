@@ -117,7 +117,7 @@ public class BattleManager : MonoBehaviour {
 
 		gameObject.SetActive (false);
 
-		SuperFunction.Instance.AddEventListener (quad, SuperRaycast.GetMouseClick, QuadClick);
+		SuperFunction.Instance.AddEventListener<RaycastHit, int> (quad, SuperRaycast.GetMouseClick, QuadClick);
 	}
 
 	private void UnitCellClick(object _data){
@@ -158,11 +158,9 @@ public class BattleManager : MonoBehaviour {
 		}
 	}
 
-	private void QuadClick(int _index, object[] _objs){
+	private void QuadClick(int _index, RaycastHit hit, int _data){
 
 		if (heroSuperList.GetSelectedIndex () != -1) {
-
-			RaycastHit hit = (RaycastHit)_objs [0];
 
 			int fix = battle.clientIsMine ? 1 : -1;
 
