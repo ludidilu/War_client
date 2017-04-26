@@ -22,9 +22,9 @@ public class BattleManager : MonoBehaviour {
 	[SerializeField]
 	private Camera battleCamera;
 
-	private Battle battle;
+	public Battle battle;
 
-	private Dictionary<int, GameObject> unitGoDic = new Dictionary<int, GameObject>();
+	public Dictionary<int, HeroStateMachine2> unitGoDic = new Dictionary<int, HeroStateMachine2>();
 
 	private LinkedList<int> unitGoList = new LinkedList<int>();
 
@@ -32,13 +32,7 @@ public class BattleManager : MonoBehaviour {
 
 	private LinkedList<int> skillGoList = new LinkedList<int>();
 
-	private Dictionary<int, LineRenderer> lrDic = new Dictionary<int, LineRenderer> ();
-
-	private LinkedList<GameObject> unitPool = new LinkedList<GameObject>();
-
 	private LinkedList<GameObject> skillPool = new LinkedList<GameObject>();
-
-	private LinkedList<LineRenderer> lrPool = new LinkedList<LineRenderer> ();
 
 	private Action overCallBack;
 
@@ -283,18 +277,16 @@ public class BattleManager : MonoBehaviour {
 		}
 	}
 
-	private void Refresh(){
+	private void Refresh(Dictionary<int,LinkedList<int>> _clientAttackData){
 
-		RefreshUnit ();
-
-		RefreshLine ();
+		RefreshUnit (_clientAttackData);
 
 		RefreshSkill ();
 
 		RefreshUi ();
 	}
 
-	private void RefreshUnit(){
+	private void RefreshUnit(Dictionary<int,LinkedList<int>> _clientAttackData){
 
 		Dictionary<int, Unit>.Enumerator enumerator = battle.unitDic.GetEnumerator ();
 
@@ -304,18 +296,18 @@ public class BattleManager : MonoBehaviour {
 
 			Unit unit = enumerator.Current.Value;
 
+			HeroStateMachine2 hm;
+
 			if (unitGoDic.ContainsKey (uid)) {
 
-				GameObject go = unitGoDic [uid];
-
-				Vector3 pos = GetUnitPos (unit);
-
-				go.transform.localPosition = pos;
+				hm = unitGoDic [uid];
 
 			} else {
 
-				CreateUnitGo (unit);
+				hm = CreateUnitGo (unit);
 			}
+
+			hm.UpdateAction (_clientAttackData);
 		}
 
 		LinkedListNode<int> node = unitGoList.First;
@@ -328,68 +320,27 @@ public class BattleManager : MonoBehaviour {
 
 			if (!battle.unitDic.ContainsKey (uid)) {
 
-				RemoveUnitGo (uid);
+				HeroStateMachine2 hm = unitGoDic [uid];
 
-				unitGoList.Remove (node);
+				if (hm.damageTimes == 0 && !hm.isAttacking) {
+
+					RemoveUnitGo (uid);
+
+					unitGoList.Remove (node);
+				}
 			}
 
 			node = nextNode;
 		}
 	}
 
-	private void RefreshLine(){
-
-		Dictionary<int, Unit>.Enumerator enumerator = battle.unitDic.GetEnumerator ();
-
-		while (enumerator.MoveNext ()) {
-
-			int uid = enumerator.Current.Key;
-
-			Unit unit = enumerator.Current.Value;
-
-			GameObject go = unitGoDic [uid];
-
-			LineRenderer lr = lrDic [uid];
-
-			if (unit.targetUid != -1) {
-
-				if (unitGoDic.ContainsKey (unit.targetUid)) {
-
-					lr.gameObject.SetActive (true);
-
-					lr.SetPosition (0, go.transform.localPosition);
-
-					lr.SetPosition (1, unitGoDic[unit.targetUid].transform.localPosition);
-
-				} else {
-
-					lr.gameObject.SetActive (false);
-				}
-
-			} else {
-
-				lr.gameObject.SetActive (false);
-			}
-		}
-	}
-
 	private void RemoveUnitGo(int _uid){
 
-		GameObject go = unitGoDic [_uid];
+		HeroStateMachine2 hm = unitGoDic [_uid];
 
 		unitGoDic.Remove (_uid);
 
-		go.SetActive (false);
-
-		unitPool.AddLast (go);
-
-		LineRenderer lr = lrDic [_uid];
-
-		lrDic.Remove (_uid);
-
-		lr.gameObject.SetActive (false);
-
-		lrPool.AddLast (lr);
+		GameObject.Destroy (hm.gameObject);
 	}
 
 	private void RefreshSkill(){
@@ -459,24 +410,11 @@ public class BattleManager : MonoBehaviour {
 		skillPool.AddLast (go);
 	}
 
-	private void CreateUnitGo(Unit _unit){
+	private HeroStateMachine2 CreateUnitGo(Unit _unit){
+		
+		GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", null);
 
-		GameObject go;
-
-		if (unitPool.Count > 0) {
-
-			go = unitPool.Last.Value;
-
-			unitPool.RemoveLast ();
-
-			go.SetActive (true);
-
-		} else {
-
-			go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", null);
-
-			go.transform.SetParent (unitContainer, false);
-		}
+		go.transform.SetParent (unitContainer, false);
 
 		if(_unit.isMine == battle.clientIsMine){
 
@@ -493,16 +431,18 @@ public class BattleManager : MonoBehaviour {
 
 		go.transform.localPosition = GetUnitPos(_unit);
 
-		unitGoDic.Add(_unit.uid, go);
+		HeroStateMachine2 hm = go.GetComponent<HeroStateMachine2> ();
+
+		hm.Init (_unit, this);
+
+		unitGoDic.Add(_unit.uid, hm);
 
 		unitGoList.AddLast(_unit.uid);
 
-		LineRenderer lr = CreateLine();
-
-		lrDic.Add(_unit.uid, lr);
+		return hm;
 	}
 
-	private Vector3 GetUnitPos(Unit _unit){
+	public Vector3 GetUnitPos(Unit _unit){
 
 		int fix = battle.clientIsMine ? 1 : -1;
 
@@ -520,28 +460,6 @@ public class BattleManager : MonoBehaviour {
 		int fix = battle.clientIsMine ? 1 : -1;
 
 		return new Vector3 ((float)tmpPos.x * fix, 0, (float)tmpPos.y * fix);
-	}
-
-	private LineRenderer CreateLine(){
-
-		LineRenderer lr;
-
-		if (lrPool.Count > 0) {
-
-			lr = lrPool.Last.Value;
-
-			lrPool.RemoveLast ();
-
-		} else {
-
-			GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/line.prefab", null);
-
-			go.transform.SetParent (unitContainer, false);
-
-			lr = go.GetComponent<LineRenderer> ();
-		}
-
-		return lr;
 	}
 
 	private void CreateSkillGo(Skill _skill){
