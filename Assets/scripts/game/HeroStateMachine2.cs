@@ -7,7 +7,7 @@ using superTween;
 public class HeroStateMachine2 :MonoBehaviour {
 	
 	public const string attackTrigger = "attack";
-	public const string walkTrigger = "walk";
+	public const string walkTrigger = "run";
 
 	private BattleManager battleManager;
 	

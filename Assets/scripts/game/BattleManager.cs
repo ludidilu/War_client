@@ -412,18 +412,18 @@ public class BattleManager : MonoBehaviour {
 
 	private HeroStateMachine2 CreateUnitGo(Unit _unit){
 		
-		GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", null);
+		GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/unitPrefab/orc.prefab", null);
 
 		go.transform.SetParent (unitContainer, false);
 
-		if(_unit.isMine == battle.clientIsMine){
-
-			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
-
-		}else{
-
-			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
-		}
+//		if(_unit.isMine == battle.clientIsMine){
+//
+//			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
+//
+//		}else{
+//
+//			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
+//		}
 
 		float scale = (float)_unit.sds.GetRadius () * 2;
 
