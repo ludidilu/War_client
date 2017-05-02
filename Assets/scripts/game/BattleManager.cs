@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using superList;
 using UnityEngine.UI;
+using publicTools;
 
 public class BattleManager : MonoBehaviour {
 
@@ -416,6 +417,8 @@ public class BattleManager : MonoBehaviour {
 
 		go.transform.SetParent (unitContainer, false);
 
+		PublicTools.SetLayer(go,unitContainer.gameObject.layer);
+
 //		if(_unit.isMine == battle.clientIsMine){
 //
 //			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.blue);
@@ -481,6 +484,8 @@ public class BattleManager : MonoBehaviour {
 			go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/hero.prefab", null);
 
 			go.transform.SetParent (unitContainer, false);
+
+			PublicTools.SetLayer(go,unitContainer.gameObject.layer);
 		}
 
 		if(_skill.unit.isMine == battle.clientIsMine){

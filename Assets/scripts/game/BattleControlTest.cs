@@ -14,10 +14,10 @@ public class BattleControlTest : MonoBehaviour {
 	private BattleManager battleManager2;
 
 	[SerializeField]
-	private GameObject battleMain1;
+	private GameObject[] cameras1;
 
 	[SerializeField]
-	private GameObject battleMain2;
+	private GameObject[] cameras2;
 
 	private Battle battleServer;
 
@@ -52,7 +52,12 @@ public class BattleControlTest : MonoBehaviour {
 
 		battleManager2.BattleStart ();
 
-		battleMain2.SetActive (false);
+		for (int i = 0; i < cameras2.Length; i++) {
+
+			GameObject go = cameras2[i];
+
+			go.SetActive(false);
+		}
 
 		battleServer.ServerRefresh (true);
 
@@ -104,9 +109,19 @@ public class BattleControlTest : MonoBehaviour {
 	
 		if (Input.GetKeyUp (KeyCode.A)) {
 
-			battleMain1.SetActive (!battleMain1.activeSelf);
+			for (int i = 0; i < cameras1.Length; i++) {
 
-			battleMain2.SetActive (!battleMain2.activeSelf);
+				GameObject go = cameras1[i];
+
+				go.SetActive(!go.activeSelf);
+			}
+
+			for (int i = 0; i < cameras2.Length; i++) {
+
+				GameObject go = cameras2[i];
+
+				go.SetActive(!go.activeSelf);
+			}
 		}
 	}
 }
