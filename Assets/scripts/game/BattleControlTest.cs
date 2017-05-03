@@ -14,10 +14,16 @@ public class BattleControlTest : MonoBehaviour {
 	private BattleManager battleManager2;
 
 	[SerializeField]
-	private GameObject[] cameras1;
+	private Camera battleCamera1;
 
 	[SerializeField]
-	private GameObject[] cameras2;
+	private Camera battleCamera2;
+
+	[SerializeField]
+	private GameObject battleUI1;
+
+	[SerializeField]
+	private GameObject battleUI2;
 
 	private Battle battleServer;
 
@@ -52,12 +58,11 @@ public class BattleControlTest : MonoBehaviour {
 
 		battleManager2.BattleStart ();
 
-		for (int i = 0; i < cameras2.Length; i++) {
+		SuperRaycast.SetCamera (battleCamera1);
 
-			GameObject go = cameras2[i];
+		battleCamera2.gameObject.SetActive (false);
 
-			go.SetActive(false);
-		}
+		battleUI2.SetActive (false);
 
 		battleServer.ServerRefresh (true);
 
@@ -109,19 +114,15 @@ public class BattleControlTest : MonoBehaviour {
 	
 		if (Input.GetKeyUp (KeyCode.A)) {
 
-			for (int i = 0; i < cameras1.Length; i++) {
+			battleCamera1.gameObject.SetActive (!battleCamera1.gameObject.activeSelf);
 
-				GameObject go = cameras1[i];
+			battleUI1.SetActive (!battleUI1.activeSelf);
 
-				go.SetActive(!go.activeSelf);
-			}
+			battleCamera2.gameObject.SetActive (!battleCamera2.gameObject.activeSelf);
 
-			for (int i = 0; i < cameras2.Length; i++) {
+			battleUI2.SetActive (!battleUI2.activeSelf);
 
-				GameObject go = cameras2[i];
-
-				go.SetActive(!go.activeSelf);
-			}
+			SuperRaycast.SetCamera (battleCamera1.gameObject.activeSelf ? battleCamera1 : battleCamera2);
 		}
 	}
 }

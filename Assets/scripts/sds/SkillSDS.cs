@@ -1,4 +1,4 @@
-﻿public class SkillSDS : CsvBase, ISkillSDS
+﻿public partial class SkillSDS : CsvBase, ISkillSDS
 {
 	public int cd;
 	public int skillType;

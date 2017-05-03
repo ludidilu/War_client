@@ -1,4 +1,4 @@
-﻿public class UnitSDS : CsvBase, IUnitSDS
+﻿public partial class UnitSDS : CsvBase, IUnitSDS
 {
 	public int unitType;
 	public double moveSpeed;

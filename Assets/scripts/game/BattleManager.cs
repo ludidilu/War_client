@@ -412,8 +412,10 @@ public class BattleManager : MonoBehaviour {
 	}
 
 	private HeroStateMachine2 CreateUnitGo(Unit _unit){
+
+		UnitSDS sds = _unit.sds as UnitSDS;
 		
-		GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/unitPrefab/orc.prefab", null);
+		GameObject go = GameObjectFactory.Instance.GetGameObject (sds.model, null);
 
 		go.transform.SetParent (unitContainer, false);
 

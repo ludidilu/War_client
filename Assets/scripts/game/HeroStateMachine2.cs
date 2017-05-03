@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using superTween;
 using publicTools;
+using gameObjectFactory;
 
 public class HeroStateMachine2 :MonoBehaviour {
 	
@@ -29,11 +30,11 @@ public class HeroStateMachine2 :MonoBehaviour {
 	
 	public UnitSDS sds;
 
-	private LinkedList<BallisticControl> missileList = new LinkedList<BallisticControl>();
-	
 	public void Init(Unit _hero, BattleManager _battleManager){
 
-		float scale = (float)_hero.sds.GetRadius () * 2;
+		UnitSDS sds = _hero.sds as UnitSDS;
+
+		float scale = sds.scale;
 
 		transform.localScale = new Vector3 (scale, scale, scale);
 
@@ -124,7 +125,7 @@ public class HeroStateMachine2 :MonoBehaviour {
 				}
 			}
 
-		} else {
+		} else if (hero.targetUid == -1 && !isAttacking) {
 
 			if (hero.prefVelocity != RVO.Vector2.zero) {
 
@@ -146,7 +147,7 @@ public class HeroStateMachine2 :MonoBehaviour {
 
 		isAttacking = false;
 
-		GameObject go = new GameObject();
+		GameObject go = GameObjectFactory.Instance.GetGameObject ("Assets/arts/prefab/missile.prefab", null);
 
 		go.transform.SetParent(battleManager.unitContainer,false);
 
@@ -154,16 +155,12 @@ public class HeroStateMachine2 :MonoBehaviour {
 
 		BallisticControl bc = go.GetComponent<BallisticControl>();
 
-		LinkedListNode<BallisticControl> node = missileList.AddLast(bc);
-
 		LinkedList<int> tmpDamageList = damageList;
 
 		damageList = null;
 
 		Action dele = delegate() {
 		
-			missileList.Remove(node);
-
 			GameObject.Destroy(go);
 
 			LinkedList<int>.Enumerator enumerator = tmpDamageList.GetEnumerator ();
@@ -201,13 +198,6 @@ public class HeroStateMachine2 :MonoBehaviour {
 			SuperTween.Instance.Remove (xTweenID);
 
 			SuperTween.Instance.Remove (zTweenID);
-		}
-
-		LinkedList<BallisticControl>.Enumerator enumerator = missileList.GetEnumerator();
-
-		while(enumerator.MoveNext()){
-
-			GameObject.Destroy(enumerator.Current.gameObject);
 		}
 	}
 }
