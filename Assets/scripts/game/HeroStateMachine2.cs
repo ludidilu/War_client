@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using superTween;
+using publicTools;
 
 public class HeroStateMachine2 :MonoBehaviour {
 	
@@ -31,6 +32,12 @@ public class HeroStateMachine2 :MonoBehaviour {
 	private LinkedList<BallisticControl> missileList = new LinkedList<BallisticControl>();
 	
 	public void Init(Unit _hero, BattleManager _battleManager){
+
+		float scale = (float)_hero.sds.GetRadius () * 2;
+
+		transform.localScale = new Vector3 (scale, scale, scale);
+
+		transform.localPosition = _battleManager.GetUnitPos(_hero);
 		
 		damageTimes = 0;
 		
@@ -140,6 +147,10 @@ public class HeroStateMachine2 :MonoBehaviour {
 		isAttacking = false;
 
 		GameObject go = new GameObject();
+
+		go.transform.SetParent(battleManager.unitContainer,false);
+
+		PublicTools.SetLayer(go,battleManager.unitContainer.gameObject.layer);
 
 		BallisticControl bc = go.GetComponent<BallisticControl>();
 

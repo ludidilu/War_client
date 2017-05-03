@@ -15,7 +15,7 @@ public class BattleManager : MonoBehaviour {
 	private const float AIR_UNIT_Y = 15f;
 
 	[SerializeField]
-	private Transform unitContainer;
+	public Transform unitContainer;
 
 	[SerializeField]
 	private GameObject quad;
@@ -427,12 +427,6 @@ public class BattleManager : MonoBehaviour {
 //
 //			go.GetComponent<Renderer> ().material.SetColor ("_Color", Color.yellow);
 //		}
-
-		float scale = (float)_unit.sds.GetRadius () * 2;
-
-		go.transform.localScale = new Vector3 (scale, scale, scale);
-
-		go.transform.localPosition = GetUnitPos(_unit);
 
 		HeroStateMachine2 hm = go.GetComponent<HeroStateMachine2> ();
 
