@@ -16,7 +16,9 @@ public class HeroStateMachine2 :MonoBehaviour {
 
 	private LinkedList<int> damageList = null;
 
-	private int tweenID = -1;
+	private int xTweenID = -1;
+
+	private int zTweenID = -1;
 
 	public Unit hero{ get; private set; }
 	
@@ -25,6 +27,8 @@ public class HeroStateMachine2 :MonoBehaviour {
 	public int damageTimes;
 	
 	public UnitSDS sds;
+
+	private LinkedList<BallisticControl> missileList = new LinkedList<BallisticControl>();
 	
 	public void Init(Unit _hero, BattleManager _battleManager){
 		
@@ -66,20 +70,25 @@ public class HeroStateMachine2 :MonoBehaviour {
 	}
 
 	public void SetPos(Vector3 _pos){
-
-		Vector3 nowPos = transform.localPosition;
-
-		Action<float> dele = delegate(float obj) {
 		
-			transform.localPosition = Vector3.Lerp(nowPos,_pos,obj);
-		};
+		xTweenID = SuperTween.Instance.To(transform.localPosition.x,_pos.x,Time.fixedDeltaTime,ChangePosX,null);
 		
-		tweenID = SuperTween.Instance.To(0, 1, Time.fixedDeltaTime, dele, MoveOver);
+		zTweenID = SuperTween.Instance.To(transform.localPosition.z,_pos.z,Time.fixedDeltaTime,ChangePosZ,MoveOver);
+	}
+
+	private void ChangePosX(float _v){
+
+		transform.localPosition = new Vector3(_v,transform.localPosition.y,transform.localPosition.z);
+	}
+
+	private void ChangePosZ(float _v){
+
+		transform.localPosition = new Vector3(transform.localPosition.x,transform.localPosition.y,_v);
 	}
 
 	private void MoveOver(){
 
-		tweenID = -1;
+		xTweenID = zTweenID = -1;
 	}
 
 	public void UpdateAction(Dictionary<int,LinkedList<int>> _attackData){
@@ -125,6 +134,39 @@ public class HeroStateMachine2 :MonoBehaviour {
 
 		DoAttackCommand ();
 	}
+
+	public void Shoot(){
+
+		isAttacking = false;
+
+		GameObject go = new GameObject();
+
+		BallisticControl bc = go.GetComponent<BallisticControl>();
+
+		LinkedListNode<BallisticControl> node = missileList.AddLast(bc);
+
+		LinkedList<int> tmpDamageList = damageList;
+
+		damageList = null;
+
+		Action dele = delegate() {
+		
+			missileList.Remove(node);
+
+			GameObject.Destroy(go);
+
+			LinkedList<int>.Enumerator enumerator = tmpDamageList.GetEnumerator ();
+
+			while (enumerator.MoveNext ()) {
+
+				battleManager.unitGoDic [enumerator.Current].damageTimes--;
+			}
+		};
+
+		Vector3 targetPos = battleManager.unitGoDic[tmpDamageList.First.Value].transform.localPosition;
+
+		bc.Fly(transform.localPosition,targetPos,dele);
+	}
 	
 	private void DoAttackCommand(){
 		
@@ -143,9 +185,18 @@ public class HeroStateMachine2 :MonoBehaviour {
 
 	void OnDestroy(){
 		
-		if (tweenID != -1) {
+		if (xTweenID != -1) {
 			
-			SuperTween.Instance.Remove (tweenID);
+			SuperTween.Instance.Remove (xTweenID);
+
+			SuperTween.Instance.Remove (zTweenID);
+		}
+
+		LinkedList<BallisticControl>.Enumerator enumerator = missileList.GetEnumerator();
+
+		while(enumerator.MoveNext()){
+
+			GameObject.Destroy(enumerator.Current.gameObject);
 		}
 	}
 }
