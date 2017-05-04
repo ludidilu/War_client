@@ -297,18 +297,17 @@ public class BattleManager : MonoBehaviour {
 
 			Unit unit = enumerator.Current.Value;
 
-			HeroStateMachine2 hm;
+			if (!unitGoDic.ContainsKey (uid)) {
 
-			if (unitGoDic.ContainsKey (uid)) {
-
-				hm = unitGoDic [uid];
-
-			} else {
-
-				hm = CreateUnitGo (unit);
+				CreateUnitGo (unit);
 			}
+		}
 
-			hm.UpdateAction (_clientAttackData);
+		Dictionary<int,Unit>.KeyCollection.Enumerator enumerator2 = battle.unitDic.Keys.GetEnumerator ();
+
+		while (enumerator2.MoveNext ()) {
+
+			unitGoDic [enumerator2.Current].UpdateAction (_clientAttackData);
 		}
 
 		LinkedListNode<int> node = unitGoList.First;
@@ -411,7 +410,7 @@ public class BattleManager : MonoBehaviour {
 		skillPool.AddLast (go);
 	}
 
-	private HeroStateMachine2 CreateUnitGo(Unit _unit){
+	private void CreateUnitGo(Unit _unit){
 
 		UnitSDS sds = _unit.sds as UnitSDS;
 		
@@ -437,8 +436,6 @@ public class BattleManager : MonoBehaviour {
 		unitGoDic.Add(_unit.uid, hm);
 
 		unitGoList.AddLast(_unit.uid);
-
-		return hm;
 	}
 
 	public Vector3 GetUnitPos(Unit _unit){
